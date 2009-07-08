@@ -24,7 +24,7 @@ class Package(models.Model):
     version = models.CharField(max_length=200)
     architecture = models.CharField(max_length=5)
     filename = models.CharField(max_length=250)
-    installed_size = models.CharField(max_length=20)
+    selfalled_size = models.CharField(max_length=20)
     short_description = models.CharField(max_length=500)
     long_description = models.TextField()
     creator = models.CharField(max_length=200, blank=True)
