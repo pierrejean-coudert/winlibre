@@ -1,44 +1,56 @@
 from piston.handler import AnonymousBaseHandler
 from piston.handler import BaseHandler
 from emitters import *
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from piston.utils import rc, require_extended, require_mime, Mimer
 
+import datetime
 import os
 import os.path
 import sys
 sys.path.append('..')
 from repository.winrepo.models import *
+from wpkg.package import Package as PackageParser
 
-### Default fields list
-defaultfields =  ('name', 'version', 'architecture', 'filename', 'short_description', 'long_description', 'creator', 'creator_email', 'publisher', 'publisher_email', 'maintainer', 'maintainer_email', 'rights_holder', 'rights_holder_email', 'release_date', 'changes', 'size', 'license', 'sha256', 'homepage', 'selfalled_size', 
-('languages', ('language', ), ),
-('section', ('title', ), ),
-('supported', ('os_version', ), ),
-('depends', ('name', 'version', ), ), 
-('provides', ('name', 'version', ), ), 
-('suggests', ('name', 'version', ), ),  
-('replaces', ('name', 'version', ), ),
-('pre_depends', ('name', 'version', ), ),
-('recommends', ('name', 'version', ), ),
-('conflicts', ('name', 'version', ), )
-)
+### Default fields list to be used in every class definition below.
+defaultfields =  ('name', 'version', 'architecture', 'filename', 'short_description', 'long_description', 'creator', 'creator_email', 'publisher', 'publisher_email', 'maintainer', 'maintainer_email', 'rights_holder', 'rights_holder_email', 'release_date', 'changes', 'size', 'license', 'sha256', 'homepage', 'installed_size', 
+                  ('languages', ('language', ), ),
+                  ('section', ('title', ), ),
+                  ('supported', ('os_version', ), ),
+                  ('depends', ('name', 'version', ), ), 
+                  ('provides', ('name', 'version', ), ), 
+                  ('suggests', ('name', 'version', ), ),  
+                  ('replaces', ('name', 'version', ), ),
+                  ('pre_depends', ('name', 'version', ), ),
+                  ('recommends', ('name', 'version', ), ),
+                  ('conflicts', ('name', 'version', ), )
+                  )
 
 
 class AnonymousPackageHandler(AnonymousBaseHandler):
+    ''' Manages the anonymous petitions to the PackageHandler.
+
+    model: Defines the model from winrepo.models which is use to server or create resources.
+    fields: Defines the used fields for the GET methods provided by the class.
+    '''
     model = Package
     fields = defaultfields
 
 class PackageHandler(BaseHandler):
-    anonymous = AnonymousPackageHandler
-    model = Package
-    fields = defaultfields
+    ''' Manages the anonymous petitions to the PackageHandler.                                                  
+ 
+    This class manages the petitions for individual packages descriptor.
+    model: Defines the model from winrepo.models which is use to server or create resources.
+    fields: Defines the used fields for the GET methods provided by the class.                                   
+    anonymous: Defines the class that handles the anonymous petitions for this resource.
+    '''
 
-class PackageHandler(BaseHandler):
-    anonymous = AnonymousPackageHandler
     model = Package
     fields = defaultfields
+    anonymous = AnonymousPackageHandler
 
     def read(self, request, name=None, version=None, id=None, generalquery=None):
+        ''' GET method for Package resource. Return the package data depending on the URL '''
         base = Package.objects
 
         if name and version:
@@ -52,22 +64,91 @@ class PackageHandler(BaseHandler):
             except:
                 return None
 
+    @require_extended
+    def create(self, request, name=None, version=None):
+        ''' POST method for the Package resource. Takes data from a POST petition, deserializes it and 
+        saves it into the database model. '''
+        base = Package.objects
+        sectionbase = Section.objects
+        languagesbase = Languages.objects
+        # In this properties list, every m2m relationship is not yet developed.
+        propertieslist = ['name', 'version', 'architecture',
+                          'short_description', 'long_description',
+                          'installed_size', 'maintainer', 'creator',
+                          'publisher', 'rights_holder', 'filename',
+                          'release_date', 'changes',
+                          'size', 'license', 'sha256',
+                          'homepage', 'section']
+        
+        # Using wpkg parser
+        pkg = PackageParser()                                    
+        pkg.from_string(request.raw_post_data)
+        packagemodel = Package()
+        if pkg:
+            #Here I match each property from Package to the model properties.
+            for prop in propertieslist:
+                if prop == 'section':
+                    try:
+                        sectionexist = sectionbase.get(title=pkg.get_property(prop))
+                    except:
+                        sectionexist = None
+                        return HttpResponse("Section doesnt exist "+pkg.get_property(prop))
+                        #RISE ERROR
+                    if sectionexist:
+                        # Here there is a nasty solution. Section is the last added element
+                        # and the package should be saved before adding it to the set.
+                        # Pending for a better solution.
+                        packagemodel.save()
+                        sectionexist.package_set.add(packagemodel)
+                elif prop == 'release_date':
+                    ds = pkg.get_property(prop).split('/')
+                    dateobject = datetime.date(year=int(ds[2]), month=int(ds[1]), day=int(ds[0]))
+                    setattr(packagemodel, prop, dateobject)
+                elif prop == 'language':
+                    try:
+                        languageexist = languagesbase.get(language=pkg.get_property(prop))
+                    except:
+                        languageexist = None
+                       #RISE ERROR                                                                               
+                    if languageexist:
+                        packagemodel.languages.add(languageexist)
+                else:
+                    setattr(packagemodel, prop, pkg.get_property(prop))
+            return rc.CREATED
+        else:
+            #RISE ERROR
+            return HttpResponse("There is nothing")
+
 class AnonymousPackagesHandler(AnonymousBaseHandler):
+    ''' Manages the anonymous petitions to the PackageHandler.                                                   
+
+    model: Defines the model from winrepo.models which is use to server or create resources.
+    fields: Defines the used fields for the GET methods provided by the class.          
+    '''
     model = Package
     fields = defaultfields
 
 class PackagesHandler(BaseHandler):
+    ''' Manages the anonymous petitions to the PackageHandler.                                                 
+  
+    This class manage petitions for a set of packages descriptors.
+    model: Defines the model from winrepo.models which is use to server or create resources.                     
+    fields: Defines the used fields for the GET methods provided by the class.                                   
+    anonymous: Defines the class that handles the anonymous petitions for this resource.
+    '''
+
     model = Package
-    anonymous = AnonymousPackagesHandler
     fields = defaultfields
-    
+    anonymous = AnonymousPackagesHandler    
+
     def read(self, request, date=None):
+        ''' GET method for Packages resource. Return the packages data depending on the query defined in URL '''
         base = Package.objects
 
         if date:
             list_date = date.split('-')
-            date = {'day':int(list_date[0]), 'month': int(list_date[1]), 'year': int(list_date[2])}
             try:
+                date = {'day':int(list_date[0]), 'month': int(list_date[1]), 'year': int(list_date[2])}
                 return base.filter(release_date__gte=(datetime.date(date['year'], date['month'],  date['day'])))
             except:
                 return None

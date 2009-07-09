@@ -17,5 +17,3 @@ url(r'package/(?P<name>[^/]*)/(?P<emitter_format>[^/]*)/$', package),
 url(r'packages/all/(?P<emitter_format>[^/]*)/$', packages),
 url(r'packages/(?P<date>\d{2}-\d{2}-\d{4})/(?P<emitter_format>[^/]*)/$', packages),
 )
-
-#(?P<emitter_format>.+)

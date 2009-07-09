@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Section(models.Model):
     title = models.CharField(max_length=200)
     
@@ -24,7 +23,7 @@ class Package(models.Model):
     version = models.CharField(max_length=200)
     architecture = models.CharField(max_length=5)
     filename = models.CharField(max_length=250)
-    selfalled_size = models.CharField(max_length=20)
+    installed_size = models.CharField(max_length=20)
     short_description = models.CharField(max_length=500)
     long_description = models.TextField()
     creator = models.CharField(max_length=200, blank=True)
@@ -53,3 +52,4 @@ class Package(models.Model):
 
     def __unicode__(self):
         return u"%s %s" % (self.name, self.version)
+

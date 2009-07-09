@@ -8,14 +8,15 @@ from repository.winrepo.models import *
 from wpkg.vercmp import vercmp
 
 def redirect(request, name=None, version=None, id=None, generalquery=None, emitter_format=None):
+    r''' Defines petition redirection for every kind of query defined in the URL. Redirect the query
+    to the standard /api/name/version/format/ petition format.'''
     base = Package.objects
-    msj = "Not Found"
     if id:
         try:
             result = base.get(id=id)
             return HttpResponseRedirect('/api/package/'+result.name+'/'+result.version+'/xml/')
         except:
-            return HttpResponse(msj)
+            return HttpResponseNotFound
     elif name and generalquery:
         versions = []
         if generalquery == "latest":
@@ -29,6 +30,6 @@ def redirect(request, name=None, version=None, id=None, generalquery=None, emitt
             lastversion = result.get(name=name, version=versions[len(versions)-1])
             return HttpResponseRedirect('/api/package/'+lastversion.name+'/'+lastversion.version+'/xml/')
         elif generalquery == "all":
-            return HttpResponse('/api/package/'+name+'/xml/')
+            return HttpResponseRedirect('/api/package/'+name+'/xml/')
     else:
-        HttpResponse(msj)
+        HttpResponseNotFound

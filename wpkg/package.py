@@ -23,7 +23,7 @@ NAMESPACE='' #Empty NameSpace just to trick python-elements and avoid warning be
 # Lists/Helper classes
 class Writeable(Element):
     def write(self, filename=INFO_FILENAME):
-        """ Write an XML selfance to file """
+        """ Write an XML instance to file """
         f = open(filename, 'wb')
         f.write(self.to_string())
         f.close()
@@ -122,7 +122,7 @@ class Package(Writeable):
     _children['short-description'] = ('short_description', unicode)
     _children['long-description'] = ('long_description', unicode)
     _children['section'] = ('section', unicode)
-    _children['selfalled-size'] = ('selfalled_size',int)
+    _children['installed-size'] = ('installed_size',int)
     _children['maintainer'] = ('maintainer', unicode)
     _children['creator'] = ('creator', unicode)
     _children['publisher'] = ('publisher', unicode)
@@ -149,7 +149,7 @@ class Package(Writeable):
     
     def __init__(self, name=None, version=None, architecture=None,
             short_description=None, long_description=None, section=None,
-            selfalled_size=None, maintainer=None, creator=None, publisher=None,
+            installed_size=None, maintainer=None, creator=None, publisher=None,
             rights_holder=None, filename=None, release_date=None, 
             supported=None, changes=None, size=None, languages=None,
             license=None, md5sum=None, sha1=None, sha256=None, homepage=None,
@@ -161,7 +161,7 @@ class Package(Writeable):
         self.short_description = short_description
         self.long_description = long_description
         self.section = section
-        self.selfalled_size = selfalled_size
+        self.installed_size = installed_size
         self.maintainer = maintainer
         self.creator = creator
         self.publisher = publisher
