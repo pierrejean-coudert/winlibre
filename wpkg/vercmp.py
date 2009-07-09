@@ -11,15 +11,12 @@ Returns:
 
 """
 
-#TODO: Verify version number when parsing through VerCompare class
-
 class VerCompare():
     def __init__(self, version):
         """ Parses the version into epoch, version, and revision revision """
         epoch = version.split(':')
 
         if len(epoch) > 1: # We have an epoch
-            #TODO: Make sure len(epoch[0]) ! > 1
             val = int(epoch[0])
             if val in range(0,10):
                 self.epoch = int(epoch[0])
