@@ -21,8 +21,7 @@ except ImportError:
 
 class WLPXMLEmitter(Emitter):
     def _to_xml(self, data, e, answer):
-        """ Turns each element on the self.construct() list into a complete Package 
-        object with its complete information """
+        """ Turns each element on the self.construct() list into a complete Package object with its complete information """
         if isinstance(data, (list, tuple)):
             for item in data:
                 self._to_xml(item, e, answer)
@@ -83,4 +82,4 @@ class WLPXMLEmitter(Emitter):
 
 Emitter.unregister('xml')
 Emitter.register('xml', WLPXMLEmitter, 'text/xml; charset=utf-8')
-Mimer.register(lambda *a: None, ('text/xml',))
+#Mimer.register(lambda *a: None, ('text/xml',))
