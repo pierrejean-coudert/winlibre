@@ -41,7 +41,7 @@ class WLPXMLEmitter(Emitter):
                         setattr(e, key, oldvalue+'<'+value+'>')
                 elif isinstance(value, list):
                     # Here comes the properties for
-                    # each M2M relation: Replaces, Suggests, 
+                    # each M2M relation: Replaces, Suggests,
                     # Provides, Conflicts, etc...
                     for element in value:
                         if 'name' in element.keys():
@@ -58,13 +58,13 @@ class WLPXMLEmitter(Emitter):
                     # oldvalue just works when email for someone
                     # was setted before his/her name
                     oldvalue = getattr(e, key)
-                    if oldvalue:                    
+                    if oldvalue:
                         setattr(e, key, value+" "+oldvalue)
                     else:
                         setattr(e, key, value)
-            answer.append(e.to_string())   
+            answer.append(e.to_string())
 
-         
+
     def render(self, request):
         """ Render/Serializer Function to create XML information files for each Package or list of packages """
         answer = ["<packages>"]
