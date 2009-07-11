@@ -87,7 +87,9 @@ class PackageHandler(BaseHandler):
                           'publisher', 'rights_holder', 'filename',
                           'release_date', 'changes',
                           'size', 'license', 'sha256',
-                          'homepage',  'languages', 'supported',  'section']
+                          'homepage',  'languages', 'supported', 'section',
+                          'replaces', 'pre_depends', 'depends',
+                          'provides', 'recommends', 'suggests']
 
         # Using wpkg parser
         pkg = PackageParser()
@@ -103,6 +105,7 @@ class PackageHandler(BaseHandler):
                         sectionexist = sectionbase.get(title=pkg.get_property(prop))
                     except:
                         sectionexist = None
+                        packagemodel.delete()
                         return HttpResponse("Section doesnt exist "+pkg.get_property(prop))
                         #RISE ERROR
                     if sectionexist:
@@ -119,6 +122,7 @@ class PackageHandler(BaseHandler):
                         setattr(packagemodel, prop+"_email", exrex.group('email'))
                         setattr(packagemodel, prop, exrex.group('name'))
                     else:
+                        packagemodel.delete()
                         return HttpResponse("Invalid name and email format in: "+prop)
                 elif prop == 'release_date':
                     ds = pkg.get_property(prop).split('/')
@@ -129,6 +133,7 @@ class PackageHandler(BaseHandler):
                         try:
                             languageexist = languagesbase.get(language=language)
                         except:
+                            packagemodel.delete()
                             return HttpResponse("Language doesn't exist")
                         packagemodel.save()
                         packagemodel.languages.add(languageexist)
@@ -141,10 +146,23 @@ class PackageHandler(BaseHandler):
                             return HttpResponse("Windows version doesn't exist:"+supported)
                         packagemodel.save()
                         packagemodel.supported.add(supportedexist)
-#NOT YET DONE
-#                elif  prop == 'replaces' or prop == 'pre-depends' or prop == 'depends'                or prop == 'provides' or prop == 'recommends' or prop == 'suggests':
+                elif  prop == 'replaces' or prop == 'pre_depends' or prop == 'depends' or prop == 'provides' or prop == 'recommends' or prop == 'suggests':
+                    for item in pkg.get_property(prop):
+                        if item:
+                            rex = re.compile('(?P<name>[^"]*) \((?P<version>[^\)]*)')
+                            exrex = rex.match(item)
+                            try:
+                                packageexist = base.get(name=exrex.group('name'), version=exrex.group('version'))
+                            except:
+                                packagemodel.delete()
+                                return HttpResponse("Package not found: "+exrex.group('name')+" in "+prop)
+                        else:
+                            break
+                        tmpprop = getattr(packagemodel, prop)
+                        tmpprop.add(packageexist)
                 else:
                     setattr(packagemodel, prop, pkg.get_property(prop))
+            packagemodel.save()
             return rc.CREATED
         else:
             #RISE ERROR
