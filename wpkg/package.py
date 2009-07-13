@@ -39,7 +39,8 @@ class List(UserList, Writeable):
         self._text = None
         
     def __str__(self):
-       return ', '.join(str(self.data))
+        return self.data
+        
 
 class Supported(List):
     _tag = 'supported'
@@ -185,6 +186,7 @@ class Package(Writeable):
         self.suggests = isinstance(suggests, Suggests) and suggests or Suggests()
         self.conflicts = isinstance(conflicts, Conflicts) and conflicts or Conflicts()
         self.urls = isinstance(urls, URLs) and urls or URLs()
+        self.installed = False
 
     def get_property(self, prop):
         """ Get the value of a property """
@@ -219,7 +221,12 @@ class Package(Writeable):
             else:
                 raise Exception, 'Only setting of %s is allowed' % prop
         else:
-            raise AttributeError, '%s property does not exist' % prop                
+            raise AttributeError, '%s property does not exist' % prop
+    
+    def install(self, path):
+        self.installed = True
+        print 'Package path is %s' % path
+        return 0, 'installed'
     
 class Packages(List):
     _tag = 'packages'
