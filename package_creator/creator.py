@@ -72,9 +72,9 @@ def parse(args=None):
     else:
         return parser.parse_args()
 
-def init():
+def init(overwrite):
     """ Initializes a package """
-    if os.path.exists(wpkg.package.INFO_FILENAME):
+    if os.path.exists(wpkg.package.INFO_FILENAME) and not overwrite:
         raise IOError, 'Package already initialized.'
         return False
     else:
@@ -113,12 +113,12 @@ def main(argv):
     opts, args = parse(argv)
 
     # Setup logging
+    logger = logging.getLogger(__appname__)
+
     if opts.verbose == 1:
-        logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
+        logger.setLevel(logging.INFO)
     elif opts.verbose == 2:
-        logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG)
-    else:
-        logging.basicConfig(format=LOG_FORMAT, level=logging.WARNING)
+        logger.setLevel(logging.DEBUG)
 
     # Change dir if necessary
     if opts.folder:
@@ -130,14 +130,19 @@ def main(argv):
 
     # Start parsing arguments
     if len(args) == 0:
-        import frontend
-        app = frontend.CreatorApp(redirect=False)
-        #app = frontend.CreatorApp(redirect=True,filename='log.txt')
-        app.MainLoop()
+#        try:
+        if 1:
+            import frontend
+            app = frontend.CreatorApp(0)
+            app.setLogger(logger)
+            #app = frontend.CreatorApp(redirect=True,filename='log.txt')
+            app.MainLoop()
+#        except:
+#            logging.error('Could not load the interface. Make sure you have wxPython installed.')
         return
 
     elif args[0].lower() == 'init':
-        init()
+        init(opts.overwrite)
         sys.exit()
 
     elif len(args) < 2 or (args[0] == 'set' and len(args) < 3):
