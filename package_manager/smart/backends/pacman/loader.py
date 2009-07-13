@@ -24,7 +24,9 @@ class PacManPackageInfo(PackageInfo):
 
     def getURLs(self):
         info = self._info
-        return info.urls
+        urls = info.urls
+        print 'URLs', ';'.join(urls)
+        return urls
 
     def getPathList(self):
         return self._info.get("filelist", [])

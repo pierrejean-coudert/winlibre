@@ -165,7 +165,7 @@ def main(argv):
             if x == []:
                 print None
             else:
-                print x
+                print '\n'.join(x)
         else: # Just a string
             print x
     elif args[0] == 'clear':
