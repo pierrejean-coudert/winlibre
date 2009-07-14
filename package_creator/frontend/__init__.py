@@ -1,8 +1,11 @@
 """ wxPython Frontend """
 
 import creator
+import os.path
 import wx
 from wx import xrc
+
+ICON_PATH = 'frontend/tango-icon-theme/16x16/'
 
 class CreatorApp(wx.App):
     def OnInit(self):
@@ -22,23 +25,28 @@ class CreatorApp(wx.App):
     def createMenus(self):
         # File menu
         filemenu = wx.Menu()
-        filemenu.Append(wx.ID_EXIT, 'E&xit')
+        item = wx.MenuItem(filemenu, 500, 'E&xit\tCtrl+x', 'Quit the application')
+        bmp = wx.Image(os.path.join(ICON_PATH, 'actions/system-log-out.png'),
+            wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        item.SetBitmap(bmp)
+        filemenu.AppendItem(item)
+        wx.EVT_MENU(self, item.GetId(), self.OnClose)
         
         menubar = wx.MenuBar()
         menubar.Append(filemenu, '&File')
         
         # Help menu
         helpmenu = wx.Menu()
-        helpmenu.Append(wx.ID_ABOUT, '&About')
+        item = wx.MenuItem(helpmenu, 501, '&About\tCtrl+A', 'About the application')
+        bmp = wx.Image(os.path.join(ICON_PATH, 'apps/system-users.png'),
+            wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        item.SetBitmap(bmp)
+        helpmenu.AppendItem(item)
+        wx.EVT_MENU(self, item.GetId(), self.OnAbout)
         
         menubar.Append(helpmenu, '&Help')
-        
-        # Bindings
-        wx.EVT_MENU(self, wx.ID_ABOUT, self.OnAbout)
-        wx.EVT_MENU(self, wx.ID_EXIT, self.OnClose)
-        
+
         self.frame.SetMenuBar(menubar)
-        
         self.frame.CreateStatusBar()
         
     def OnClose(self, e):
