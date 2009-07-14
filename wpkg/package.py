@@ -39,7 +39,8 @@ class List(UserList, Writeable):
         self._text = None
         
     def __str__(self):
-       return ', '.join(str(self.data))
+        return self.data
+        
 
 class Supported(List):
     _tag = 'supported'
@@ -185,6 +186,7 @@ class Package(Writeable):
         self.suggests = isinstance(suggests, Suggests) and suggests or Suggests()
         self.conflicts = isinstance(conflicts, Conflicts) and conflicts or Conflicts()
         self.urls = isinstance(urls, URLs) and urls or URLs()
+        self.installed = False
 
     def get_property(self, prop):
         """ Get the value of a property """
@@ -219,7 +221,44 @@ class Package(Writeable):
             else:
                 raise Exception, 'Only setting of %s is allowed' % prop
         else:
-            raise AttributeError, '%s property does not exist' % prop                
+            raise AttributeError, '%s property does not exist' % prop
+    
+    def install(self, path):
+        self.installed = True
+        import os
+        import zipimport
+        import zipfile
+        import imp
+        print 'Package path is %s' % path
+        if os.path.isfile(path):
+            dest_path = os.path.dirname(path)
+            files  = self.uncompress(path, dest_path)
+            dir_name = os.path.dirname(files[0])
+            if len(files) > 0:
+                init_file_path = os.path.join(dest_path, dir_name,'__init__.py')
+                if not os.path.exists(init_file_path):
+                    file = open(init_file_path, 'w')
+                    file.close()
+            else:
+                return -2, 'not installed'
+            
+            f, filename, desc = imp.find_module(dir_name, [dest_path])
+            module = imp.load_module('pkg', f, filename, desc)
+            from pkg import install
+            install.run()
+            return 0, 'installed'
+        else:
+            return -1, 'not installed'
+            
+    def uncompress(self, src_path, dest_path=None):
+        import zipfile
+        import os
+        dest_path= dest_path != None and dest_path or os.path.dirname(src_path)
+        print 'Extract %s to %s' % (src_path, dest_path)
+        zf = zipfile.ZipFile(src_path)
+        files = [info.filename for info in zf.infolist() if info.filename.endswith('.py') or info.filename.endswith('.xml')]
+        zf.extractall(dest_path, files)
+        return files
     
 class Packages(List):
     _tag = 'packages'
@@ -267,3 +306,4 @@ def to_XML_string_format(string):
     """  
     return string.replace('<', '"').replace('>', '"') 
 
+    
