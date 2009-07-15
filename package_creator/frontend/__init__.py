@@ -45,7 +45,7 @@ class CreatorApp(wx.App):
         wx.EVT_MENU(self, item.GetId(), self.OnAbout)
         
         menubar.Append(helpmenu, '&Help')
-
+        
         self.frame.SetMenuBar(menubar)
         self.frame.CreateStatusBar()
         
