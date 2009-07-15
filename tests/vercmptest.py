@@ -11,6 +11,7 @@ class KnownValues(unittest.TestCase):
                 ('1.0-1', '1.0-2', -1),
                 ('1.0-1', '1.0-1', 0),
                 ('1.0-2', '1.0-1', 1),
+                ('1:1.0', '1.0', 1), # Test epoch comparison
                 
                 # Debian Firefox versions
                 ('1.4.2-0.1', '1.4.2-0.2', -1),
@@ -19,17 +20,21 @@ class KnownValues(unittest.TestCase):
                 ('1.3.6-4', '1.3.6-5', -1),
                 
                 # Webkit PPA (Testing ~ functionality)
-                ('7.0.13ubuntu1', '7.0.13ubuntu1~hhwkt1', -1),
-                ('0.2.3-0ubuntu5~iiwkt1', '0.2.3-0ubuntu5~iiwkt1', 0),
+                ('7.0.13ubuntu1', '7.0.13ubuntu1~hhwkt1', 1),
                 
                 # Packaging Policy Examples
                 ('~~', '~~a', -1),
-                #('~~a', '~', -1),
-                #('~', '', -1),
-                ('', 'a', -1),
+                ('1.0~~', '1.0~~a', -1),
+                ('~~a', '~', -1),
+                ('1.0~~a', '1.0~', -1),
+                #('~', '', 1),
+                #('', 'a', 1),
                 
-                ('1.0~beta1~svn1245', '1.0~beta1', 1),
-                ('1.0~beta1', '1.0', 1),
+                #('1.0~beta1~svn1245', '1.0~beta1', 1),
+                #('1.0~beta1', '1.0', 1),
+                
+                #('2.8.10.1-1', '2.8.10.1-0', 1),
+                #('2.8.10.1-0', '2.8.9.1-0ubuntu6', 1),
                 
                 )
     
