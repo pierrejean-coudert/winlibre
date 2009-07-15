@@ -52,7 +52,7 @@ class VerType:
     def order(self):
         if self.val == '~': return -1
         elif self.val.isdigit(): return 0
-        elif not self.val: return 0
+        elif not self.val: return 1
         elif self.val.isalpha(): return ord(self.val)
         else: return ord(self.val) + 256
 
@@ -81,8 +81,10 @@ def __compare_section(s1, s2):
             # Check order
             if types1[i].order() > types2[i].order():
                 return 1
-            else:
+            elif types1[i].order() < types2[i].order():
                 return -1
+            else:
+                raise Error, "Problem comparing versions"
        
         # Get more of same type for both
         j = i
@@ -121,11 +123,7 @@ def __compare_section(s1, s2):
     
     if s1 == s2:
         return 0
-    print 'hey', s1, s2, i
-    #elif s1 < s2:
-    #    return -1
-    #else:
-    #    return 0
+    raise Error, "Problem comparing versions"
 
 def vercmp(ver1, ver2):
     """ Compares 2 version strings
