@@ -42,14 +42,13 @@ class CreatorApp(wx.App):
         column_1.Add(txt, 0, wx.ALL, 5)
 
         txt = wx.StaticText(self.home, -1, 'Package Folder:')
-        btn = wx.Button(self.home, -1, 'Browse')
+        btn = wx.Button(self.home, -1, 'Browse...')
         horiz = wx.BoxSizer()
         self.home.folder = wx.TextCtrl(self.home)
         horiz.Add(txt, 0, wx.LEFT|wx.CENTER, 5)
         horiz.Add(self.home.folder, 1, wx.LEFT|wx.RIGHT|wx.CENTER, 3)
         horiz.Add(btn, 0, wx.RIGHT|wx.CENTER, 5)
         self.Bind(wx.EVT_BUTTON, self.OnNewDir, btn)
-        
         
         column_1.Add(horiz,0, wx.EXPAND)
         
