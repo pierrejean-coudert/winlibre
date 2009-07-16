@@ -23,23 +23,35 @@ class CreatorApp(wx.App):
     def createHome(self):
         self.notebook = wx.Toolbook(self.frame, -1)
 
-        il = wx.ImageList(32, 32)
-        il.Add(wx.Image(os.path.join(ICONS_32, 'actions/go-home.png')).ConvertToBitmap())
-        il.Add(wx.Image(os.path.join(ICONS_32, 'mimetypes/package-x-generic.png')).ConvertToBitmap())
-        il.Add(wx.Image(os.path.join(ICONS_32, 'categories/preferences-system.png')).ConvertToBitmap())
-        il.Add(wx.Image(os.path.join(ICONS_32, 'mimetypes/text-x-script.png')).ConvertToBitmap())
-        il.Add(wx.Image(os.path.join(ICONS_32, 'apps/system-software-update.png')).ConvertToBitmap())
-        self.notebook.AssignImageList(il)
+        # Icons for each tab
+        icons = ['actions/go-home.png', 'mimetypes/package-x-generic.png',
+                 'categories/preferences-system.png',
+                 'mimetypes/text-x-script.png',
+                 'apps/system-software-update.png']
+
+        # Tabs
         self.home = wx.Panel(self.notebook)
-        self.notebook.AddPage(self.home, 'Home', False, 0)
         self.files = wx.Panel(self.notebook)
-        self.notebook.AddPage(self.files, 'Files', False, 1)
         self.details = wx.Panel(self.notebook)
-        self.notebook.AddPage(self.details, 'Details', False, 2)
         self.scripts = wx.Panel(self.notebook)
-        self.notebook.AddPage(self.scripts, 'Scripts', False, 3)
         self.submit = wx.Panel(self.notebook)
-        self.notebook.AddPage(self.submit, 'Submit', False, 4)
+        
+        # List of the panels, tab names and image indexs
+        panels = [(self.home, 'Home', 0),
+                  (self.files, 'Files', 1),
+                  (self.details, 'Details', 2),
+                  (self.scripts, 'Scripts', 3),
+                  (self.submit, 'Submit', 4)]
+
+        # Setup the imagel list
+        il = wx.ImageList(32, 32)
+        for item in icons:
+            il.Add(wx.Image(os.path.join(ICONS_32, item)).ConvertToBitmap())
+        self.notebook.AssignImageList(il)
+        
+        # Add the pages
+        for item in panels:
+            self.notebook.AddPage(item[0], item[1], False, item[2])
 
     def createMenus(self):
         # File menu
