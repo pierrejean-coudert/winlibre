@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Section(models.Model):
     title = models.CharField(max_length=200)
     
@@ -53,3 +52,4 @@ class Package(models.Model):
 
     def __unicode__(self):
         return u"%s %s" % (self.name, self.version)
+

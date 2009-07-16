@@ -166,6 +166,7 @@ def main(ctrl, opts):
     iface.hideStatus()
     if trans:
         confirm = not opts.yes
+        print opts.urls, opts.dump, opts.download, opts.stepped, confirm
         if opts.urls:
             ctrl.dumpTransactionURLs(trans)
         elif opts.dump:
