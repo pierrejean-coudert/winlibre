@@ -35,7 +35,8 @@ class PacManPackageManager(PackageManager):
 
 #            status, output = commands.getstatusoutput("installpkg %s" % 
 #                                                        pkgpaths[pkg][0])
-            status, output = 0, 'installed'
+            
+            status, output = pkg.install(pkgpaths[pkg][0])
             print 'Package %s is %s. Installed: %s' % (pkg, output, pkg.installed)
 
         for pkg in upgrade:

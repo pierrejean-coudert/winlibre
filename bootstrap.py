@@ -982,7 +982,6 @@ def after_install(options, home_dir):
     subprocess.call([join(bin_dir, 'easy_install'), 'nose'])
     subprocess.call([join(bin_dir, 'easy_install'), 'pylint'])
     subprocess.call([join(bin_dir, 'easy_install'), 'django'])
-    subprocess.call([join(bin_dir, 'easy_install'), 'http://svn.wxwidgets.org/svn/wx/wxPython/trunk/'])
     subprocess.call([join(bin_dir, 'easy_install'), 'pywin32'])
 
 
