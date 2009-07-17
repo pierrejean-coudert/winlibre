@@ -100,8 +100,8 @@ def main(argv):
         if 1:
             import frontend
             app = frontend.CreatorApp(0)
-            app.setLogger(logger)
             #app = frontend.CreatorApp(redirect=True,filename='log.txt')
+            app.setLogger(logger)
             app.MainLoop()
 #        except:
 #            logging.error('Could not load the interface. Make sure you have wxPython installed.')
