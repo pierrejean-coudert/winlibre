@@ -25,63 +25,32 @@ class CreatorApp(wx.App):
 
         self.createMenus()
         self.createTabs()
-        self.createHome()
         
         self.frame.Center()
         self.frame.Show()
         
         return True
-    
-    def createHome(self):
-        text = wx.StaticText(self.home, -1, creator.__appname__)
-        font = wx.Font(18, wx.SWISS, wx.NORMAL, wx.BOLD)
-        text.SetFont(font)
-        welcome = wx.StaticText(self.home, -1, WELCOME_STR)
-        
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticLine(self.home), 0, wx.EXPAND)
-        sizer.Add((0,0), 1)
-        sizer.Add(text, 0, wx.CENTER|wx.ALL, 5)
-        sizer.Add(welcome, 0, wx.CENTER|wx.ALL, 5)
-        
-        horiz = wx.BoxSizer()
-        bmp = wx.Image(os.path.join(ICONS_16, 'actions/document-new.png')).ConvertToBitmap()
-        self.home.new = buttons.GenBitmapTextButton(self.home, -1, bmp, 'New Package')
-        bmp = wx.Image(os.path.join(ICONS_16, 'actions/document-open.png')).ConvertToBitmap()
-        self.home.open = buttons.GenBitmapTextButton(self.home, -1, bmp, 'Open Package')
-        horiz.Add(self.home.new, 0, wx.RIGHT, 15)
-        horiz.Add(self.home.open, 0, wx.LEFT, 15)
-        sizer.Add(horiz, 0, wx.CENTER)
-
-        sizer.Add((0,0), 1)        
-        self.home.SetSizer(sizer)
-        
-        # Bindings
-        self.home.new.Bind(wx.EVT_BUTTON, self.OnNew)
-        self.home.open.Bind(wx.EVT_BUTTON, self.OnOpen)
 
     def createTabs(self):
-        self.notebook = wx.Toolbook(self.frame, -1)
+        self.notebook = wx.Notebook(self.frame, -1)
 
         # Icons for each tab
-        icons = ['actions/go-home.png', 'mimetypes/package-x-generic.png',
-                 'categories/preferences-system.png',
+        icons = ['categories/preferences-system.png',
+                 'mimetypes/package-x-generic.png',
                  'mimetypes/text-x-script.png',
                  'apps/system-software-update.png']
 
         # Tabs
-        self.home = wx.Panel(self.notebook)
         self.files = wx.Panel(self.notebook)
         self.details = wx.Panel(self.notebook)
         self.scripts = wx.Panel(self.notebook)
         self.submit = wx.Panel(self.notebook)
-        
+
         # List of the panels, tab names and image indexs
-        panels = [(self.home, 'Home', 0),
+        panels = [(self.details, 'Package Details', 0),
                   (self.files, 'Files', 1),
-                  (self.details, 'Package Details', 2),
-                  (self.scripts, 'Scripts', 3),
-                  (self.submit, 'Submit', 4)]
+                  (self.scripts, 'Scripts', 2),
+                  (self.submit, 'Submit', 3)]
 
         # Setup the imagel list
         il = wx.ImageList(32, 32)
@@ -92,19 +61,19 @@ class CreatorApp(wx.App):
         # Add the pages
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
-
+            
     def createMenus(self):
         # File menu
         filemenu = wx.Menu()
         
-        item = wx.MenuItem(filemenu, 502, '&New...\tCtrl+N', 'Create a new package')
+        item = wx.MenuItem(filemenu, -1, '&New...\tCtrl+N', 'Create a new package')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/window-new.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
         filemenu.AppendItem(item)
         wx.EVT_MENU(self, item.GetId(), self.OnNew)
         
-        item = wx.MenuItem(filemenu, 502, '&Open...\tCtrl+O', 'Open a package')
+        item = wx.MenuItem(filemenu, -1, '&Open...\tCtrl+O', 'Open a package')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/document-open.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -113,7 +82,17 @@ class CreatorApp(wx.App):
         
         filemenu.AppendSeparator()
         
-        item = wx.MenuItem(filemenu, 500, 'E&xit\tCtrl+X', 'Quit the application')
+        self.menu_save = wx.MenuItem(filemenu, -1, '&Save\tCtrl+S', 'Save the package')
+        bmp = wx.Image(os.path.join(ICONS_16, 'actions/document-save.png'),
+            wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        self.menu_save.SetBitmap(bmp)
+        filemenu.AppendItem(self.menu_save)
+        wx.EVT_MENU(self, self.menu_save.GetId(), self.OnSave)
+        self.menu_save.Enable(False)
+        
+        filemenu.AppendSeparator()
+        
+        item = wx.MenuItem(filemenu, -1, 'E&xit\tCtrl+X', 'Quit the application')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/system-log-out.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -125,7 +104,7 @@ class CreatorApp(wx.App):
         
         # Help menu
         helpmenu = wx.Menu()
-        item = wx.MenuItem(helpmenu, 501, '&About...\tCtrl+A', 'About the application')
+        item = wx.MenuItem(helpmenu, -1, '&About...\tCtrl+A', 'About the application')
         bmp = wx.Image(os.path.join(ICONS_16, 'apps/system-users.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -142,19 +121,29 @@ class CreatorApp(wx.App):
         
     def OnNew(self, e):
         path = self.GetDir()
+        if not path:
+            return
         os.chdir(path)
         try:
             lib.init(False)
+            self.OnOpen(None, False)
             #wx.MessageBox('Success')
         except:
             wx.MessageBox("An error occurred creating the project.\n" \
             "Make sure a package does not already exist in that folder.",
-            "Error creating project")
+            "Error creating project", wx.ICON_WARNING)
     
-    def OnOpen(self, e):
-        path = self.GetDir(False)
-        print path
-        os.chdir(path)
+    def OnOpen(self, e, change_dir=True):
+        if change_dir:
+            path = self.GetDir(False)
+            if not path:
+                return
+            os.chdir(path)
+        print 'ohai'
+        self.menu_save.Enable()
+
+    def OnSave(self, e):
+        print 'saving'
     
     def OnAbout(self, e):
         d = wx.AboutDialogInfo()
@@ -164,15 +153,16 @@ class CreatorApp(wx.App):
 
     def GetDir(self, enable_new=True):
         """ Returns a directory """
+        result = None
         if enable_new:
             dlg = wx.DirDialog(self.frame, 'Choose a directory:')
         else:
             dlg = wx.DirDialog(self.frame, 'Choose a directory:',
-                style=wx.DD_DIR_MUST_EXIST)
+                          style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
         if dlg.ShowModal() == wx.ID_OK:
             result = dlg.GetPath()
         dlg.Destroy()
-        return result or None
+        return result
     
     def setLogger(self, logger):
         self.logger = logger
