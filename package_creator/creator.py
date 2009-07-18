@@ -9,6 +9,7 @@ import sys
 from optparse import OptionParser
 
 # WinLibre imports
+import lib
 sys.path.append(os.path.join(os.path.dirname(__file__), '..')) # For importing wpkg
 import wpkg.package
 from wpkg.package import Package, List
@@ -72,41 +73,6 @@ def parse(args=None):
     else:
         return parser.parse_args()
 
-def init(overwrite):
-    """ Initializes a package """
-    if os.path.exists(wpkg.package.INFO_FILENAME) and not overwrite:
-        raise IOError, 'Package already initialized.'
-        return False
-    else:
-        e = Package()
-        e.write() # uses default filename of wpkg.package.INFO_FILENAME without specifying
-        return True
-
-def set_script(type, filename, overwrite=False):
-    """ Sets an install/remove script """
-    scripts = ['preinstall', 'install', 'postinstall', 'preremove', 'remove',
-               'postremove']
-    type = type.lower()
-    for script in scripts:
-        if type == script:
-            f = script + '.py'
-            if filename == 'remove': # Remove the script
-                try:
-                    os.remove(f)
-                    return True
-                except:
-                    raise IOError, 'Unable to remove %s from package' % f
-            else:
-                # copy filename to script+'.py'
-                if not os.path.exists(f) or overwrite:
-                    shutil.copyfile(filename, f)
-                    return True
-                else:
-                    raise IOError, '%s already exists. Use --overwrite if you ' \
-                                   'wish to replace the existing file.' % f
-    raise AttributeError, '%s is not a valid script' % type
-    return False
-
 ########################################
 def main(argv):
     """ Main function of execution """
@@ -134,15 +100,15 @@ def main(argv):
         if 1:
             import frontend
             app = frontend.CreatorApp(0)
-            app.setLogger(logger)
             #app = frontend.CreatorApp(redirect=True,filename='log.txt')
+            app.setLogger(logger)
             app.MainLoop()
 #        except:
 #            logging.error('Could not load the interface. Make sure you have wxPython installed.')
         return
 
     elif args[0].lower() == 'init':
-        init(opts.overwrite)
+        lib.init(opts.overwrite)
         sys.exit()
 
     elif len(args) < 2 or (args[0] == 'set' and len(args) < 3):
@@ -189,7 +155,7 @@ def main(argv):
         e.append_property(args[1], args[2:])
         e.write()
     elif args[0] == 'script':
-        set_script(args[1], args[2], opts.overwrite)
+        lib.set_script(args[1], args[2], opts.overwrite)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
