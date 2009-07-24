@@ -299,43 +299,4 @@ class Packages(List):
     def __init__(self, packages=None):
         super(Packages, self).__init__(packages)
         
-
-##########################################
-# RFC822 Conversion Functions
-def to_RFC_string_format(string, part="all"):  
-    """  
-    Returns a standard formatted name/email string  
-    to_RFC_string_format(string, part="all")  
-
-    string MUST be in the following format: First Last "email@address.com"  
-
-    The second paramter has 3 options: "all", "name", and "email"  
-    "all" returns the string in standard format "First Last <email@address.com>"  
-       and is the default option  
-    "name" returns only the name portion of the string  
-    "email" returns only the email address portion of the string  
-
-    Raises TypeError if the string is improperly formatted  
-    """
-    if string.count('"') > 1 and string.endswith('"'):  
-     proper = string[:-1] + '>'  
-     index = proper.rfind('"')  
-     proper = proper[:index] + '<' + proper[index + 1:]  
-     if part == 'all':  
-         return proper  
-     elif part == 'name':  
-         return proper.split('<')[0].strip()  
-     elif part == 'email':  
-         return proper.split('<')[1][:-1]  
-     else:  
-         return ""
-    else:  
-     raise TypeError, '%s is not in standard First Last format' % string  
-
-def to_XML_string_format(string):
-    """
-    Converts a string in RFC format to be XML compatible  
-    """  
-    return string.replace('<', '"').replace('>', '"') 
-
     
