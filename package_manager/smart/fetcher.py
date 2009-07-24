@@ -1051,10 +1051,7 @@ class FTPHandler(FetcherHandler):
                         iface.debug("Server does not support resume. \
                                     Restarting...")
                 finally:
-                    if os.name == 'nt':
-                        os.close(local.fileno())
-                    else: # 'posix'
-                        local.close()
+                    local.close()
 
                 if mtime:
                     os.utime(localpathpart, (mtime, mtime))
@@ -1241,10 +1238,7 @@ class URLLIBHandler(FetcherHandler):
                         item.progress(current, total)
                         data = remote.read(BLOCKSIZE)
                 finally:
-                    if os.name == 'nt':
-                        os.close(local.fileno())
-                    else: # 'posix'
-                        local.close()
+                    local.close()
                     remote.close()
 
                 os.rename(localpathpart, localpath)
@@ -1529,10 +1523,7 @@ class PyCurlHandler(FetcherHandler):
 
                 url = item.getURL()
 
-                if os.name == 'nt':
-                    os.close(local.fileno())
-                else: # 'posix'
-                    local.close()
+                local.close()
 
                 self._lock.acquire()
                 multi.remove_handle(handle)
@@ -1577,10 +1568,7 @@ class PyCurlHandler(FetcherHandler):
 
                 url = item.getURL()
 
-                if os.name == 'nt':
-                    os.close(local.fileno())
-                else: # 'posix'
-                    local.close()
+                local.close()
 
                 self._lock.acquire()
                 multi.remove_handle(handle)
