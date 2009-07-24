@@ -39,7 +39,10 @@ class List(UserList, Writeable):
         self._text = None
         
     def __str__(self):
-        return self.data
+        return '\n'.join([str(data) for data in self.data])
+        
+    def clear(self):
+        self.data = []
 
 class PackageShort(Writeable):
     _tag = 'package'
@@ -52,7 +55,7 @@ class PackageShort(Writeable):
         self.version = version
         
     def __str__(self):
-        return '%s_%s' % (self.name, self.version)
+        return '(%s, %s)' % (self.name, self.version)
 
 class PackageList(List):
 
@@ -60,15 +63,11 @@ class PackageList(List):
     _children['package'] = ('data', [PackageShort])
     def __init__(self, packages=None):
         super(PackageList, self).__init__(packages)
-        
-    def __str__(self):
-        print self.data
-        return self.data
 
 class Supported(PackageList):
     _tag = 'supported'
     _children = Element.copy_children()
-    _children['version'] = ('data', [unicode])
+    _children['version'] = ('data', [PackageShort])
     def __init__(self, versions=None):
         super(Supported, self).__init__(versions)
         
@@ -79,24 +78,24 @@ class Languages(List):
     def __init__(self, languages=None):
         super(Languages, self).__init__(languages)
         
-class Replaces(List):
+class Replaces(PackageList):
     _tag = 'replaces'
     _children = Element.copy_children()
-    _children['replace'] = ('data', [unicode])
+    _children['replace'] = ('data', [PackageShort])
     def __init__(self, replaces=None):
         super(Replaces, self).__init__(replaces)
         
-class Provides(List):
+class Provides(PackageList):
     _tag = 'provides'
     _children = Element.copy_children()
-    _children['provide'] = ('data', [unicode])
+    _children['provide'] = ('data', [PackageShort])
     def __init__(self, provides=None):
         super(Provides, self).__init__(provides)
         
-class PreDepends(List):
+class PreDepends(PackageList):
     _tag = 'pre-depends'
     _children = Element.copy_children()
-    _children['pre-depend'] = ('data', [unicode])
+    _children['pre-depend'] = ('data', [PackageShort])
     def __init__(self, pre_depends=None):
         super(PreDepends, self).__init__(pre_depends)
         
@@ -107,24 +106,24 @@ class Depends(PackageList):
     def __init__(self, packages=None):
         super(Depends, self).__init__(packages)
         
-class Recommends(List):
+class Recommends(PackageList):
     _tag = 'recommends'
     _children = Element.copy_children()
-    _children['recommend'] = ('data', [unicode])
+    _children['recommend'] = ('data', [PackageShort])
     def __init__(self, recommends=None):
         super(Recommends, self).__init__(recommends)
         
-class Suggests(List):
+class Suggests(PackageList):
     _tag = 'suggests'
     _children = Element.copy_children()
-    _children['suggest'] = ('data', [unicode])
+    _children['suggest'] = ('data', [PackageShort])
     def __init__(self, suggests=None):
         super(Suggests, self).__init__(suggests)
         
-class Conflicts(List):
+class Conflicts(PackageList):
     _tag = 'conflicts'
     _children = Element.copy_children()
-    _children['conflict'] = ('data', [unicode])
+    _children['conflict'] = ('data', [PackageShort])
     def __init__(self, conflicts=None):
         super(Conflicts, self).__init__(conflicts)
         
