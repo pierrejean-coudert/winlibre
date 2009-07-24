@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packages>
+	<package>
+		<name>Package1</name>
+		<version>0.0.1</version>
+		<url>http://blah.blah/blah</url>
+	</package>
+	<package>
+		<name>Package2</name>
+		<version>0.0.2</version>
+		<url>http://blah.blah/blah</url>
+	</package>
+	<package>
+		<name>TAS</name> 
+		<version>1.0</version> 
+		<url>http://www.excid3.com/downloads/example.wpl</url>
+	</package>
+</packages>
+
