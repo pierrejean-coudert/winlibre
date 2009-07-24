@@ -35,14 +35,37 @@ class List(UserList, Writeable):
         super(List, self).__init__()
         UserList.__init__(self)
         Element.__init__(self)
-        self.data = isinstance(datas, list) and data or []
+        self.data = isinstance(datas, list) and datas or []
         self._text = None
         
     def __str__(self):
         return self.data
-        
 
-class Supported(List):
+class PackageShort(Writeable):
+    _tag = 'package'
+    _children = Element.copy_children()
+    _children['name'] = ('name', unicode)
+    _children['version'] = ('version', unicode)
+    def __init__(self, name=None, version=None):
+        super(PackageShort, self).__init__()
+        self.name = name
+        self.version = version
+        
+    def __str__(self):
+        return '%s_%s' % (self.name, self.version)
+
+class PackageList(List):
+
+    _children = Element.copy_children()
+    _children['package'] = ('data', [PackageShort])
+    def __init__(self, packages=None):
+        super(PackageList, self).__init__(packages)
+        
+    def __str__(self):
+        print self.data
+        return self.data
+
+class Supported(PackageList):
     _tag = 'supported'
     _children = Element.copy_children()
     _children['version'] = ('data', [unicode])
@@ -77,12 +100,12 @@ class PreDepends(List):
     def __init__(self, pre_depends=None):
         super(PreDepends, self).__init__(pre_depends)
         
-class Depends(List):
+class Depends(PackageList):
     _tag = 'depends'
     _children = Element.copy_children()
-    _children['depend'] = ('data', [unicode])
-    def __init__(self, depends=None):
-        super(Depends, self).__init__(depends)
+    _children['package'] = ('data', [PackageShort])
+    def __init__(self, packages=None):
+        super(Depends, self).__init__(packages)
         
 class Recommends(List):
     _tag = 'recommends'
@@ -192,7 +215,8 @@ class Package(Writeable):
         """ Get the value of a property """
         prop = prop.lower()
         if prop in dir(self):
-            return getattr(self, prop)
+            p = getattr(self, prop)
+            return p
         else:
             raise AttributeError, '%s property does not exist' % prop
 
@@ -200,7 +224,16 @@ class Package(Writeable):
         """ Set the value of a property """
         prop = prop.lower()
         if prop in dir(self):
-            if isinstance(getattr(self, prop), List):
+            
+            if isinstance(getattr(self, prop), PackageList):
+                if not isinstance(value, list):
+                    raise Exception, 'Invalid value type'
+                getattr(self, prop).data = []
+                for val in value:
+                    ps = PackageShort(val)
+                    getattr(self, prop).data.append(ps)
+                
+            elif isinstance(getattr(self, prop), List):
                 if not isinstance(value, list):
                     raise Exception, 'Invalid value type'
                 getattr(self, prop).data = value
