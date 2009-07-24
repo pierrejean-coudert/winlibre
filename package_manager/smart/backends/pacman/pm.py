@@ -35,24 +35,9 @@ class PacManPackageManager(PackageManager):
                                 del install[pkg]
                             upgrade[pkg] = True
 
-        for pkg in install:
-#            status, output = commands.getstatusoutput("installpkg %s" %
-#                                                        pkgpaths[pkg][0])
-            #conflits between the old packages.xml and new packages.xml
-            #new packages.xml is not being parsed by SMART
-            list_packages = Packages()
-            #try to use relative paths
-            list_packages.from_file('C:\wpc\wpc2\winlibre1.0\wpkg\packages.xml')
-            for pkg_in_list in list_packages:
-                if(pkg.name == pkg_in_list.name):
-                    download_url = pkg_in_list.filename
-                    package_details = pkg_in_list.name
-            #define pre_install in installer
-            installer.pre_install(pkg.name,download_url)
-            #output = #return from the binary installer
-            status, output = 0, 'installed'
+        for pkg in install:            
+            status, output = pkg.install(pkgpaths[pkg][0])
             print 'Package %s is %s. Installed: %s' % (pkg, output, pkg.installed)
-
 
         for pkg in upgrade:
 

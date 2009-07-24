@@ -182,7 +182,7 @@ def main(argv):
         if os.name == 'posix':
             baseurl = "http://127.0.0.1/~bertrand/packages.xml"
         elif os.name == 'nt':
-            baseurl = "http://127.0.0.1/winlibre/packages.xml"
+            baseurl = "http://127.0.0.1/~bertrand/packages.xml"
         #path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'packages.xml'))
         #baseurl = 'file://%s' % path
         data = {'baseurl': baseurl,
