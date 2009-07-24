@@ -43,12 +43,6 @@ Examples:
   %prog show name"""
 
 ########################################
-# Exceptions
-class PropertyError(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-########################################
 # Helper functions
 def parse(args=None):
     """ Parses options and arguments passed """
