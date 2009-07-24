@@ -2,19 +2,23 @@ from smart.const import INSTALL, REMOVE
 from smart.pm import PackageManager
 from smart import *
 import commands
+from wpkg import installer
+from wpkg.package import Package
+from wpkg.package import Packages
 
 class PacManPackageManager(PackageManager):
     """
     This is the module in charge of performing actions
     required by user on selected packages.
     Actions can be: INSTALL, UPGRADE, REMOVE
-    
+
     """
 
     def commit(self, changeset, pkgpaths):
         install = {}
         remove = {}
         for pkg in changeset:
+            #DBUG** print 'pkg ',pkg
             if changeset[pkg] is INSTALL:
                 install[pkg] = True
             else:
@@ -30,12 +34,8 @@ class PacManPackageManager(PackageManager):
                             if pkg in install:
                                 del install[pkg]
                             upgrade[pkg] = True
-                            
-        for pkg in install:
 
-#            status, output = commands.getstatusoutput("installpkg %s" % 
-#                                                        pkgpaths[pkg][0])
-            
+        for pkg in install:            
             status, output = pkg.install(pkgpaths[pkg][0])
             print 'Package %s is %s. Installed: %s' % (pkg, output, pkg.installed)
 
