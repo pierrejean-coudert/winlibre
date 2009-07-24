@@ -1,0 +1,12 @@
+the overall process looks like - 
+1) python winlibre.py install ABC
+2) control goes to channel pacman, pm.py
+3) pm.py searches thru the local packages.xml database
+4) it then asks installer module to download the package in temp
+5) the package is extracted by extract() in base class installer
+6) then the install script is executed by installer, it calls MSIInstaller/NSISInstaller
+6.1) as in the case of dummy install script, the call from the install script gives the URL of binary
+6.2) pass the URL in smart - if its file:// its local, else on internet
+6.3) the binary is downloaded by the installer module 
+6.4) appropriate class MSIInstaller/NSISInstaller will handle the binary install
+7) if installed correctly, append the listing to the local xml log
