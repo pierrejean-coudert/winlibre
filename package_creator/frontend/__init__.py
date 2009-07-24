@@ -62,6 +62,36 @@ class CreatorApp(wx.App):
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
             
+        self.packager = wx.TextCtrl(self.details, -1)
+        self.email = wx.TextCtrl(self.details, -1)
+        
+        sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'),
+            orient=wx.HORIZONTAL)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.packager, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.email, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(horiz, 1)
+
+        self.name = wx.TextCtrl(self.details, -1)
+        self.version = wx.TextCtrl(self.details, -1)
+        
+        sizer2 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Software'),
+            orient=wx.HORIZONTAL)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Name:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.name, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Version:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.version, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 1)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(sizer1, 0, wx.ALL|wx.EXPAND, 5)
+        sizer.Add(sizer2, 0, wx.ALL|wx.EXPAND, 5)
+
+        self.details.SetSizer(sizer)
+        
     def createMenus(self):
         # File menu
         filemenu = wx.Menu()
