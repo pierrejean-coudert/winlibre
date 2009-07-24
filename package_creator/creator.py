@@ -12,7 +12,7 @@ from optparse import OptionParser
 import lib
 sys.path.append(os.path.join(os.path.dirname(__file__), '..')) # For importing wpkg
 import wpkg.package
-from wpkg.package import Package, List
+from wpkg.package import Package, List, PackageList, PackageShort
 
 """ WinLibre Package Creator"""
 
@@ -130,7 +130,7 @@ def main(argv):
             if x == []:
                 print None
             else:
-                print '\n'.join(x)
+                print x
         else: # Just a string
             print x
     elif args[0] == 'clear':
@@ -140,7 +140,14 @@ def main(argv):
             e.set_property(args[1], '')
         e.write()
     elif args[0] == 'set':
-        if isinstance(e.get_property(args[1]), List):
+        x = e.get_property(args[1])#.to_string()
+        if isinstance(x, PackageList):
+            x.clear()
+            for package in ''.join(args[2:]).split(';'):
+                name, version = package.split(',')
+                pkg = PackageShort(name, version)
+                x.append(pkg)
+        elif isinstance(e.get_property(args[1]), List):
             e.set_property(args[1], args[2:])
         else:
             e.set_property(args[1], ' '.join(args[2:]))
