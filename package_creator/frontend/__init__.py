@@ -6,6 +6,8 @@ import os.path
 import wx
 import wx.lib.buttons  as  buttons
 from wx import xrc
+import wpkg
+from wpkg.package import *
 
 ICONS_16 = 'frontend/tango-icon-theme/16x16/'
 ICONS_32 = 'frontend/tango-icon-theme/32x32/'
@@ -61,6 +63,8 @@ class CreatorApp(wx.App):
         # Add the pages
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
+            
+        self.EnablePages(False)
             
         self.packager = wx.TextCtrl(self.details, -1)
         self.email = wx.TextCtrl(self.details, -1)
@@ -147,9 +151,13 @@ class CreatorApp(wx.App):
         self.frame.CreateStatusBar()
         
     def OnClose(self, e):
+        """ File->Exit closes application
+        Looks like they don't want to play with me anymore :(
+        """
         self.frame.Close()
         
     def OnNew(self, e):
+        """ File->New creates a new package """
         path = self.GetDir()
         if not path:
             return
@@ -157,32 +165,76 @@ class CreatorApp(wx.App):
         try:
             lib.init(False)
             self.OnOpen(None, False)
-            #wx.MessageBox('Success')
         except:
             wx.MessageBox("An error occurred creating the project.\n" \
             "Make sure a package does not already exist in that folder.",
             "Error creating project", wx.ICON_WARNING)
     
     def OnOpen(self, e, change_dir=True):
+        """ File->Open opens a package for editing """
         if change_dir:
             path = self.GetDir(False)
             if not path:
                 return
             os.chdir(path)
-        print 'ohai'
-        self.menu_save.Enable()
 
+        # Set the currently opened package if possible
+        if not self.NewPackage(wpkg.package.INFO_FILENAME):
+            wx.MessageBox('%s does not exist' % 
+                os.path.abspath(wpkg.package.INFO_FILENAME),
+                'Error loading package', wx.ICON_WARNING)
+            return False
+        
+        self.LoadInfo()
+        self.menu_save.Enable()
+        self.EnablePages()
+            
+    def NewPackage(self, filename=None):
+        """ Sets the current package """
+        self.pkg = Package()
+        if filename:
+            try:
+                self.pkg.from_file(filename)
+            except:
+                return False
+        return True
+    
+    def LoadInfo(self):
+        """ Loads the package information into the GUI widgets """
+        # Maintainer
+        try:
+            maintainer = self.pkg.get_property('maintainer')
+            name, email = maintainer.split('<')
+            self.packager.WriteText(name.strip())
+            self.email.WriteText(email[:-1].strip())
+        except: pass
+        
+        try:    self.name.WriteText(self.pkg.get_property('name'))
+        except: pass
+        
+        try: self.version.WriteText(self.pkg.get_property('version'))
+        except: pass
+        
+    def EnablePages(self, enable=True):
+        """ Enables/Disables pages of the notebook """
+        for item in [self.details, self.files, self.scripts, self.submit]:
+            item.Enable(enable)
+            
     def OnSave(self, e):
+        """ File->Save saves the package contents """
         print 'saving'
     
     def OnAbout(self, e):
+        """ Displays the about window """
         d = wx.AboutDialogInfo()
         d.Name = creator.__appname__
         d.Version = creator.__version__
         wx.AboutBox(d)
 
     def GetDir(self, enable_new=True):
-        """ Returns a directory """
+        """ Returns a directory from a wx.DirDialog
+        Pass enable_new=False to disable the CreateDirectory button
+        """
         result = None
         if enable_new:
             dlg = wx.DirDialog(self.frame, 'Choose a directory:')
@@ -195,4 +247,7 @@ class CreatorApp(wx.App):
         return result
     
     def setLogger(self, logger):
+        """ Sets the logger of the GUI 
+        self.logger is usable after OnInit()
+        """
         self.logger = logger
