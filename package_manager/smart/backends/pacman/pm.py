@@ -18,7 +18,6 @@ class PacManPackageManager(PackageManager):
         install = {}
         remove = {}
         for pkg in changeset:
-            #DBUG** print 'pkg ',pkg
             if changeset[pkg] is INSTALL:
                 install[pkg] = True
             else:
@@ -36,6 +35,9 @@ class PacManPackageManager(PackageManager):
                             upgrade[pkg] = True
 
         for pkg in install:            
+            print 'INSTALL LIST **** :',install
+            print 'pkgpaths: ', pkgpaths
+            print 'pkg: ', pkg
             status, output = pkg.install(pkgpaths[pkg][0])
             print 'Package %s is %s. Installed: %s' % (pkg, output, pkg.installed)
 
