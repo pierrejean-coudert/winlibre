@@ -1,0 +1,9 @@
+Interface widget names:
+
+self.maintainer
+self.maintainer_email
+self.pkg_name
+self.pkg_ver
+self.pkg_arch
+self.pkg_short
+self.pkg_long

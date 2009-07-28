@@ -70,13 +70,13 @@ class CreatorApp(wx.App):
     def createDetailsWidgets(self):
         """ Create the widgets for the details tab """
         # Maintainer information
-        self.packager = wx.TextCtrl(self.details)
-        self.email = wx.TextCtrl(self.details)
+        self.maintainer = wx.TextCtrl(self.details)
+        self.maintainer_email = wx.TextCtrl(self.details)
         sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'))
         sizer1.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(self.packager, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.maintainer, 1, wx.CENTER|wx.ALL, 5)
         sizer1.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(self.email, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.maintainer_email, 1, wx.CENTER|wx.ALL, 5)
 
         # Required package information
         self.pkg_name = wx.TextCtrl(self.details)
@@ -98,6 +98,12 @@ class CreatorApp(wx.App):
         horiz.Add(self.pkg_arch, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_short, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.pkg_long = wx.TextCtrl(self.details, size=(0,100), style=wx.TE_MULTILINE)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Long Description:'), 0, wx.ALL, 5)
+        horiz.Add(self.pkg_long, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         # Add the different sizers
@@ -216,8 +222,8 @@ class CreatorApp(wx.App):
         try:
             maintainer = self.pkg.get_property('maintainer')
             name, email = maintainer.split('<')
-            self.packager.WriteText(name.strip())
-            self.email.WriteText(email[:-1].strip())
+            self.maintainer.WriteText(name.strip())
+            self.maintainer_email.WriteText(email[:-1].strip())
         except: pass
         
         try:    self.pkg_name.WriteText(self.pkg.get_property('name'))

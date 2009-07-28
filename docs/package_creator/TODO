@@ -1,0 +1,5 @@
+* Replace wx.TextCtrl for required items to be wx.PyValidators that are checked
+  during package submission. This way we can notify the user with visual aids
+  that such fields are improperly formatted. We can use this to verify that a
+  value exists, that it does not contain improper characters, and that it fits
+  a the proper structure (ie. email address verified by regex)
