@@ -64,38 +64,49 @@ class CreatorApp(wx.App):
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
             
+        self.createDetailsWidgets()
         self.EnablePages(False)
-            
-        self.packager = wx.TextCtrl(self.details, -1)
-        self.email = wx.TextCtrl(self.details, -1)
         
-        sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'),
-            orient=wx.HORIZONTAL)
-        horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.packager, 1, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.email, 1, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(horiz, 1)
+    def createDetailsWidgets(self):
+        """ Create the widgets for the details tab """
+        # Maintainer information
+        self.packager = wx.TextCtrl(self.details)
+        self.email = wx.TextCtrl(self.details)
+        sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'))
+        sizer1.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.packager, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.email, 1, wx.CENTER|wx.ALL, 5)
 
-        self.name = wx.TextCtrl(self.details, -1)
-        self.version = wx.TextCtrl(self.details, -1)
-        
-        sizer2 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Software'),
-            orient=wx.HORIZONTAL)
+        # Required package information
+        self.pkg_name = wx.TextCtrl(self.details)
+        self.pkg_ver = wx.TextCtrl(self.details)
+        sizer2 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Package'),
+            orient=wx.VERTICAL)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'Name:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.name, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.pkg_name, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Version:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.version, 1, wx.CENTER|wx.ALL, 5)
-        sizer2.Add(horiz, 1)
+        horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+        
+        archs = ['32bit', '64bit', 'Any']
+        self.pkg_arch = wx.Choice(self.details, -1, choices=archs)
+        self.pkg_short = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Architecture:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.pkg_arch, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.pkg_short, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
 
+        # Add the different sizers
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizer1, 0, wx.ALL|wx.EXPAND, 5)
         sizer.Add(sizer2, 0, wx.ALL|wx.EXPAND, 5)
 
         self.details.SetSizer(sizer)
-        
+
     def createMenus(self):
         # File menu
         filemenu = wx.Menu()
@@ -209,17 +220,17 @@ class CreatorApp(wx.App):
             self.email.WriteText(email[:-1].strip())
         except: pass
         
-        try:    self.name.WriteText(self.pkg.get_property('name'))
+        try:    self.pkg_name.WriteText(self.pkg.get_property('name'))
         except: pass
         
-        try: self.version.WriteText(self.pkg.get_property('version'))
+        try: self.pkg_ver.WriteText(self.pkg.get_property('version'))
         except: pass
         
     def EnablePages(self, enable=True):
         """ Enables/Disables pages of the notebook """
         for item in [self.details, self.files, self.scripts, self.submit]:
             item.Enable(enable)
-            
+        
     def OnSave(self, e):
         """ File->Save saves the package contents """
         print 'saving'
