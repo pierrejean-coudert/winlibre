@@ -85,9 +85,9 @@ class CreatorApp(wx.App):
             orient=wx.VERTICAL)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'Name:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_name, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_name, 1, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Version:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
         
         archs = ['32bit', '64bit', 'Any']
@@ -97,13 +97,31 @@ class CreatorApp(wx.App):
         horiz.Add(wx.StaticText(self.details, -1, 'Architecture:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_arch, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_short, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_short, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         self.pkg_long = wx.TextCtrl(self.details, size=(0,100), style=wx.TE_MULTILINE)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'Long Description:'), 0, wx.ALL, 5)
         horiz.Add(self.pkg_long, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+        
+        self.creator = wx.TextCtrl(self.details)
+        self.creator_email = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Creator:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.creator, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.creator_email, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.publisher = wx.TextCtrl(self.details)
+        self.rights_holder = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Publisher:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.publisher, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Rights Holder:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.rights_holder, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         # Add the different sizers

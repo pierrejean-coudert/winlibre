@@ -1,3 +1,7 @@
+Not in any order
+
+* Tooltips containing the notes from the Packaging Policy for each widget
+* Modularize creation of widgets and their layouts
 * Replace wx.TextCtrl for required items to be wx.PyValidators that are checked
   during package submission. This way we can notify the user with visual aids
   that such fields are improperly formatted. We can use this to verify that a

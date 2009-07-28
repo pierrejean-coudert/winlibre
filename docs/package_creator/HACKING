@@ -7,3 +7,7 @@ self.pkg_ver
 self.pkg_arch
 self.pkg_short
 self.pkg_long
+self.creator
+self.creator_email
+self.publisher
+self.rights_holder
