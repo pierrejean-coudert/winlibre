@@ -11,3 +11,22 @@ self.creator
 self.creator_email
 self.publisher
 self.rights_holder
+self.size
+self.homepage
+self.release_date
+self.changes
+self.supported
+self.languages
+self.license
+self.section
+
+Strings of the file contents
+self.preinstall
+self.install
+self.postinstall
+self.preremove
+self.remove
+self.postremove
+
+hashes <- Added silently during submit
+urls <- Added silently during submit

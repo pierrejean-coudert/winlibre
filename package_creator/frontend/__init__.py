@@ -8,6 +8,9 @@ import wx.lib.buttons  as  buttons
 from wx import xrc
 import wpkg
 from wpkg.package import *
+from wx.lib.scrolledpanel import ScrolledPanel
+from editor import PythonSTC
+import  wx.stc  as  stc
 
 ICONS_16 = 'frontend/tango-icon-theme/16x16/'
 ICONS_32 = 'frontend/tango-icon-theme/32x32/'
@@ -43,10 +46,10 @@ class CreatorApp(wx.App):
                  'apps/system-software-update.png']
 
         # Tabs
-        self.files = wx.Panel(self.notebook)
-        self.details = wx.Panel(self.notebook)
-        self.scripts = wx.Panel(self.notebook)
-        self.submit = wx.Panel(self.notebook)
+        self.files = ScrolledPanel(self.notebook)
+        self.details = ScrolledPanel(self.notebook)
+        self.scripts = ScrolledPanel(self.notebook)
+        self.submit = ScrolledPanel(self.notebook)
 
         # List of the panels, tab names and image indexs
         panels = [(self.details, 'Package Details', 0),
@@ -63,10 +66,36 @@ class CreatorApp(wx.App):
         # Add the pages
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
+            item[0].SetupScrolling()
             
         self.createDetailsWidgets()
+        #self.createFilesWidgets()
+        self.createScriptsWidgets()
         self.EnablePages(False)
+    
+    def createScriptsWidgets(self):
+        scripts = ['preinstall.py', 'install.py', 'postinstall.py', 'preremove.py', 'remove.py', 'postremove.py']
+        self.scripts_list = wx.Choice(self.scripts, choices=scripts)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.scripts, -1, 'Select an install script to edit:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.scripts_list, 0, wx.ALL, 5)
         
+        # Editor panel
+        self.editor = PythonSTC(self.scripts, -1)
+        #self.editor.SetText(demoText + open('Main.py').read())
+        self.editor.EmptyUndoBuffer()
+        self.editor.Colourise(0, -1)
+
+        # line numbers in the margin
+        self.editor.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+        self.editor.SetMarginWidth(1, 25)
+    
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(horiz, 0, wx.ALL|wx.ALIGN_RIGHT, 5)
+        sizer.Add(self.editor, 1, wx.EXPAND|wx.ALL, 5)
+        
+        self.scripts.SetSizer(sizer)
+
     def createDetailsWidgets(self):
         """ Create the widgets for the details tab """
         # Maintainer information
@@ -134,6 +163,28 @@ class CreatorApp(wx.App):
         horiz.Add(self.release_date, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.homepage, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.changes = wx.TextCtrl(self.details, size=(-1,100), style=wx.TE_MULTILINE)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Changes:'), 0, wx.ALL, 5)
+        horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        licenses = []
+        self.license = wx.ListBox(self.details, size=(-1,100), choices=licenses, style=wx.LB_SINGLE)
+        supported = ['95', '98', '2000', 'ME', 'NT', 'XP', 'Vista', '7']
+        supported.reverse()
+        self.supported = wx.ListBox(self.details, size=(-1,100), choices=supported, style=wx.LB_EXTENDED)
+        languages = []
+        self.languages = wx.ListBox(self.details, size=(-1,100), choices=languages, style=wx.LB_EXTENDED)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'License:'), 0, wx.ALL, 5)
+        horiz.Add(self.license, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Supported:'), 0, wx.ALL, 5)
+        horiz.Add(self.supported, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Languages:'), 0, wx.ALL, 5)
+        horiz.Add(self.languages, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         # Add the different sizers
