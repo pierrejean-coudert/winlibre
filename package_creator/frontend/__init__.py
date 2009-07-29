@@ -124,6 +124,18 @@ class CreatorApp(wx.App):
         horiz.Add(self.rights_holder, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
+        self.release_date = wx.TextCtrl(self.details)
+        self.size = wx.TextCtrl(self.details)
+        self.homepage = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Size:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.size, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Release Date:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.release_date, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.homepage, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
         # Add the different sizers
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizer1, 0, wx.ALL|wx.EXPAND, 5)
