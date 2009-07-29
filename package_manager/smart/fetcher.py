@@ -839,19 +839,12 @@ class FileHandler(FetcherHandler):
             while retries < self.RETRIES:
                 try:
                     input = open(filepath)
-                    if os.name == 'nt':
-                        import io
-                        output = io.open(localpath, "w", endline='\n')
-                    else:
-                        output = open(localpath, "w")
+                    output = open(localpath, "w")
                     while True:
                         data = input.read(BLOCKSIZE)
                         if not data:
                             break
-                        if os.name == 'nt':
-                            output.write(data.decode())
-                        else:
-                            output.write(data)
+                        output.write(data)
                 except (IOError, OSError), e:
                     error = unicode(e)
                     retries += 1
@@ -1039,21 +1032,15 @@ class FTPHandler(FetcherHandler):
                     item.current = 0
 
                 try:
-                    import io
-                    if os.name == 'nt':
-                        local = io.open(localpathpart, openmode, endline='\n')
-                    else:
-                        local = open(localpathpart, openmode)
+                    openmode += 'b'
+                    local = open(localpathpart, openmode)
                 except (IOError, OSError), e:
                     raise Error, "%s: %s" % (localpathpart, e)
 
                 def write(data):
                     if self._cancel:
                         raise FetcherCancelled
-                    if os.name == 'nt':
-                        local.write(data.decode())
-                    else:
-                        local.write(data)
+                    local.write(data)
                     item.current += len(data)
                     item.progress(item.current, total)
 
@@ -1238,11 +1225,8 @@ class URLLIBHandler(FetcherHandler):
                     raise Error, _("Server reports unexpected size")
 
                 try:
-                    if os.name == 'nt':
-                        import io
-                        local = io.open(localpathpart, openmode, newline='\n')
-                    else:
-                        local = open(localpathpart, openmode)
+                    openmode += 'b'
+                    local = open(localpathpart, openmode)
                 except (IOError, OSError), e:
                     raise IOError, "%s: %s" % (localpathpart, e)
 
@@ -1253,10 +1237,8 @@ class URLLIBHandler(FetcherHandler):
                     while data:
                         if self._cancel:
                             raise FetcherCancelled
-                        if os.name == 'nt':
-                            local.write(data.decode())
-                        else:
-                            local.write(data)
+
+                        local.write(data)
                         current += len(data)
                         item.progress(current, total)
                         data = remote.read(BLOCKSIZE)
@@ -1666,11 +1648,8 @@ class PyCurlHandler(FetcherHandler):
                             handle.setopt(pycurl.RESUME_FROM_LARGE, 0L)
 
                         try:
-                            if os.name == 'nt':
-                                import io
-                                local = io.open(localpathpart, openmode, newline='\n')
-                            else:
-                                local = open(localpathpart, openmode)
+                            openmode += 'b'
+                            local = open(localpathpart, openmode)
                         except (IOError, OSError), e:
                             item.setFailed("%s: %s" % (localpathpart, e))
                             continue
