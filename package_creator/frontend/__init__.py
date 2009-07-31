@@ -9,20 +9,55 @@ from wx import xrc
 import wpkg
 from wpkg.package import *
 from wx.lib.scrolledpanel import ScrolledPanel
+import wx.lib.hyperlink as hyperlink
 from editor import PythonSTC
 import  wx.stc  as  stc
 
 ICONS_16 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/16x16/')
 ICONS_32 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/32x32/')
 
-WELCOME_STR = """This application will help build WinLibre packages.
+archs = ['32bit', '64bit', 'Any']
 
-Each package contains the binary files for the application as well information
-on the software such as Authors, Licenses, and package relationships.
+supported = ['7', 'Vista', 'XP', 'NT', 'ME', '2000', '98', '95']
 
-When you are ready you can create a new package or open an existing directory
-to continue working on a previously created package.
-"""
+licenses = ['Academic Free License', 
+'Apache License',
+'Artistic License 1.0',
+'Artistic License 2.0',
+'Common Public License',
+'Creative Commons - Attribution Share Alike',
+'Creative Commons - Attribution',
+'Creative Commons - No Rights Reserved',
+'Eclipse Public License',
+'Educational Community License',
+'GNU Affero GPL v3',
+'GNU GPL v2',
+'GNU GPL v3',
+'GNU LGPL v2.1',
+'GNU LGPL v3',
+'MIT / X / Expat License',
+'Mozilla Public License',
+'Open Software License v3.0',
+'Other',
+'PHP License',
+'Public Domain',
+'Python License',
+'Simplified BSD License',
+'Zope Public License',
+]
+
+languages = ['aa','ab','ae','af','ak','am','an','ar','as','av','ay','az',
+'ba','be','bg','bh','bi','bm','bn','bo','br','bs','ca','ce','ch','co','cr','cs',
+'cu','cv','cy','da','de','dv','dz','ee','el','en','eo','es','et','eu','fa','ff',
+'fi','fj','fo','fr','fy','ga','gd','gl','gn','gu','gv','ha','he','hi','ho','hr',
+'ht','hu','hy','hz','ia','id','ie','ig','ii','ik','io','is','it','iu','ja','jv',
+'ka','kg','ki','kj','kk','kl','km','kn','ko','kr','ks','ku','kv','kw','ky','la',
+'lb','lg','li','ln','lo','lt','lu','lv','mg','mh','mi','mk','ml','mn','mr','ms',
+'mt','my','na','nb','nd','ne','ng','nl','nn','no','nr','nv','ny','oc','oj','om',
+'or','os','pa','pi','pl','ps','pt','qu','rm','rn','ro','ru','rw','sa','sc','sd',
+'se','sg','si','sk','sl','sm','sn','so','sq','sr','ss','st','su','sv','sw','ta',
+'te','tg','th','ti','tk','tl','tn','to','tr','ts','tt','tw','ty','ug','uk','ur',
+'uz','ve','vi','vo','wa','wo','xh','yi','yo','za','zh','zu']
 
 class CreatorApp(wx.App):
     def OnInit(self):
@@ -119,7 +154,6 @@ class CreatorApp(wx.App):
         horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
         
-        archs = ['32bit', '64bit', 'Any']
         self.pkg_arch = wx.Choice(self.details, -1, choices=archs)
         self.pkg_short = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
@@ -154,11 +188,11 @@ class CreatorApp(wx.App):
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         self.release_date = wx.TextCtrl(self.details)
-        self.size = wx.TextCtrl(self.details)
+        self.installed_size = wx.TextCtrl(self.details)
         self.homepage = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Size:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.size, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Installed Size:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.installed_size, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Release Date:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.release_date, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'), 0, wx.CENTER|wx.ALL, 5)
@@ -171,30 +205,18 @@ class CreatorApp(wx.App):
         horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
-        licenses = ['Apache License', 'Simplified BSD License',
-                    'Creative Commons - No Rights Reserved', 'GNU Affero GPL v3',
-                    'GNU GPL v2', 'GNU GPL v3', 'GNU LGPL v2.1', 'GNU LGPL v3',
-                    'MIT / X / Expat License', 'Academic Free License', 
-                    'Artistic License 1.0', 'Artistic License 2.0',
-                    'Common Public License', 'Creative Commons - Attribution',
-                    'Creative Commons - Attribution Share Alike',
-                    'Eclipse Public License', 'Educational Community License',
-                    'Mozilla Public License', 'Open Software License v3.0',
-                    'PHP License', 'Public Domain', 'Python License',
-                    'Zope Public License', 'Other']
         self.license = wx.ListBox(self.details, size=(-1,100), choices=licenses, style=wx.LB_SINGLE)
-        supported = ['95', '98', '2000', 'ME', 'NT', 'XP', 'Vista', '7']
-        supported.reverse()
-        self.supported = wx.ListBox(self.details, size=(-1,100), choices=supported, style=wx.LB_EXTENDED)
-        languages = []
-        self.languages = wx.ListBox(self.details, size=(-1,100), choices=languages, style=wx.LB_EXTENDED)
+        self.supported = wx.ListBox(self.details, size=(75,100), choices=supported, style=wx.LB_EXTENDED)
+        self.languages = wx.ListBox(self.details, size=(75,100), choices=languages, style=wx.LB_EXTENDED)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'License:'), 0, wx.ALL, 5)
         horiz.Add(self.license, 1, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Supported:'), 0, wx.ALL, 5)
-        horiz.Add(self.supported, 1, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Languages:'), 0, wx.ALL, 5)
-        horiz.Add(self.languages, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.supported, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(hyperlink.HyperLinkCtrl(self.details, -1, 'Languages:',
+                                        URL='http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'))
+        #horiz.Add(wx.StaticText(self.details, -1, 'Languages:'), 0, wx.ALL, 5)
+        horiz.Add(self.languages, 0, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         # Add the different sizers
@@ -311,16 +333,60 @@ class CreatorApp(wx.App):
         """ Loads the package information into the GUI widgets """
         # Maintainer
         try:
-            maintainer = self.pkg.get_property('maintainer')
-            name, email = maintainer.split('<')
-            self.maintainer.WriteText(name.strip())
-            self.maintainer_email.WriteText(email[:-1].strip())
+            name, email = self.pkg.get_property('maintainer').split('<')
+            self.maintainer.SetValue(name.strip())
+            self.maintainer_email.SetValue(email[:-1].strip())
+        except: pass
+
+        try:    self.pkg_name.SetValue(self.pkg.get_property('name'))
+        except: pass
+
+        try:    self.pkg_ver.SetValue(self.pkg.get_property('version'))
+        except: pass
+
+        try:    self.pkg_arch.Select(archs.index(self.pkg.get_property('architecture')))
+        except: pass
+
+        try:    self.pkg_short.SetValue(self.pkg.get_property('short_description'))
+        except: pass
+
+        try:    self.pkg_long.SetValue(self.pkg.get_property('long_description'))
+        except: pass
+
+        #self.section.SetValue(self.pkg.get_property('section'))
+        try:    self.installed_size.SetValue(str(self.pkg.get_property('installed_size')))
         except: pass
         
-        try:    self.pkg_name.WriteText(self.pkg.get_property('name'))
+        try:    
+                name, email = self.pkg.get_property('creator').split('<')
+                self.creator.SetValue(name.strip())
+                self.creator_email.SetValue(email[:-1].strip())
         except: pass
         
-        try: self.pkg_ver.WriteText(self.pkg.get_property('version'))
+        try:    self.publisher.SetValue(self.pkg.get_property('publisher'))
+        except: pass
+        
+        try:    self.rights_holder.SetValue(self.pkg.get_property('rights_holder'))
+        except: pass
+        
+        try:    self.release_date.SetValue(self.pkg.get_property('release_date'))
+        except: pass
+        
+        try:    self.pkg.get_property('supported')
+        except: pass
+        
+        try:    self.changes.SetValue(self.pkg.get_property('changes'))
+        except: pass
+        
+        try:    self.pkg.get_property('languages')
+        except: pass
+        
+        try:    
+                index = licenses.index(self.pkg.get_property('license'))
+                self.license.Select(index)
+        except: pass
+        
+        try:    self.homepage.SetValue(self.pkg.get_property('homepage'))
         except: pass
         
     def EnablePages(self, enable=True):

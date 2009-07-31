@@ -123,6 +123,9 @@ def main(argv):
     args[1] = args[1].replace('-','_') 
     args[0] = args[0].lower()
     
+    for i in range(0,len(args)):
+        args[i] = args[i].replace('\\n','\n')
+    
     # Set the values
     if args[0] == 'show':
         x = e.get_property(args[1])#.to_string()

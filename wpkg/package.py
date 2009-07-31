@@ -64,10 +64,10 @@ class PackageList(List):
     def __init__(self, packages=None):
         super(PackageList, self).__init__(packages)
 
-class Supported(PackageList):
+class Supported(List):
     _tag = 'supported'
     _children = Element.copy_children()
-    _children['version'] = ('data', [PackageShort])
+    _children['version'] = ('data', [unicode])
     def __init__(self, versions=None):
         super(Supported, self).__init__(versions)
         

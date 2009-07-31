@@ -18,7 +18,7 @@ creator.py init
     
 creator.py set PROPERTY VALUE
     - Sets the value of a property on a package. VALUE should always be wrapped
-      in quotes.
+      in double quotes (").
       
     creator.py set depends "pkg1,version;pkg2,version"
         - Sets the dependencies of the current package to depend on both pkg1
