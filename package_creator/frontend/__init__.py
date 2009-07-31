@@ -372,13 +372,19 @@ class CreatorApp(wx.App):
         try:    self.release_date.SetValue(self.pkg.get_property('release_date'))
         except: pass
         
-        try:    self.pkg.get_property('supported')
+        try:    
+                for item in self.pkg.get_property('supported'):
+                    try:    self.supported.Select(supported.index(item))
+                    except: pass
         except: pass
         
         try:    self.changes.SetValue(self.pkg.get_property('changes'))
         except: pass
         
-        try:    self.pkg.get_property('languages')
+        try:    
+                for item in self.pkg.get_property('languages'):
+                    try:    self.languages.Select(languages.index(item))
+                    except: pass
         except: pass
         
         try:    
