@@ -12,8 +12,8 @@ from wx.lib.scrolledpanel import ScrolledPanel
 from editor import PythonSTC
 import  wx.stc  as  stc
 
-ICONS_16 = 'frontend/tango-icon-theme/16x16/'
-ICONS_32 = 'frontend/tango-icon-theme/32x32/'
+ICONS_16 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/16x16/')
+ICONS_32 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/32x32/')
 
 WELCOME_STR = """This application will help build WinLibre packages.
 
@@ -171,7 +171,17 @@ class CreatorApp(wx.App):
         horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
-        licenses = []
+        licenses = ['Apache License', 'Simplified BSD License',
+                    'Creative Commons - No Rights Reserved', 'GNU Affero GPL v3',
+                    'GNU GPL v2', 'GNU GPL v3', 'GNU LGPL v2.1', 'GNU LGPL v3',
+                    'MIT / X / Expat License', 'Academic Free License', 
+                    'Artistic License 1.0', 'Artistic License 2.0',
+                    'Common Public License', 'Creative Commons - Attribution',
+                    'Creative Commons - Attribution Share Alike',
+                    'Eclipse Public License', 'Educational Community License',
+                    'Mozilla Public License', 'Open Software License v3.0',
+                    'PHP License', 'Public Domain', 'Python License',
+                    'Zope Public License', 'Other']
         self.license = wx.ListBox(self.details, size=(-1,100), choices=licenses, style=wx.LB_SINGLE)
         supported = ['95', '98', '2000', 'ME', 'NT', 'XP', 'Vista', '7']
         supported.reverse()
