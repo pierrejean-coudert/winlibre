@@ -11,7 +11,7 @@ self.creator
 self.creator_email
 self.publisher
 self.rights_holder
-self.size
+self.installed_size
 self.homepage
 self.release_date
 self.changes
