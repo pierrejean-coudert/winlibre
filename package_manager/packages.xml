@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packages>
+    <package>
+      <name>Package1</name>
+      <version>0.0.1</version>
+      <urls>
+      <url>http://127.0.0.1/~bertrand/package1.zip</url>
+      </urls>
+    </package>
+    <package>
+      <name>Package2</name>
+      <version>0.0.2</version>
+      <urls>
+      <url>http://127.0.0.1/~bertrand/package1.zip</url>
+      </urls>
+    </package>
+</packages>
