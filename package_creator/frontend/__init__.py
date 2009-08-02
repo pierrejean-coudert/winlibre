@@ -8,6 +8,9 @@ import wx.lib.buttons  as  buttons
 from wx import xrc
 import wpkg
 from wpkg.package import *
+from wx.lib.scrolledpanel import ScrolledPanel
+from editor import PythonSTC
+import  wx.stc  as  stc
 
 ICONS_16 = 'frontend/tango-icon-theme/16x16/'
 ICONS_32 = 'frontend/tango-icon-theme/32x32/'
@@ -43,10 +46,10 @@ class CreatorApp(wx.App):
                  'apps/system-software-update.png']
 
         # Tabs
-        self.files = wx.Panel(self.notebook)
-        self.details = wx.Panel(self.notebook)
-        self.scripts = wx.Panel(self.notebook)
-        self.submit = wx.Panel(self.notebook)
+        self.files = ScrolledPanel(self.notebook)
+        self.details = ScrolledPanel(self.notebook)
+        self.scripts = ScrolledPanel(self.notebook)
+        self.submit = ScrolledPanel(self.notebook)
 
         # List of the panels, tab names and image indexs
         panels = [(self.details, 'Package Details', 0),
@@ -63,20 +66,46 @@ class CreatorApp(wx.App):
         # Add the pages
         for item in panels:
             self.notebook.AddPage(item[0], item[1], False, item[2])
+            item[0].SetupScrolling()
             
         self.createDetailsWidgets()
+        #self.createFilesWidgets()
+        self.createScriptsWidgets()
         self.EnablePages(False)
+    
+    def createScriptsWidgets(self):
+        scripts = ['preinstall.py', 'install.py', 'postinstall.py', 'preremove.py', 'remove.py', 'postremove.py']
+        self.scripts_list = wx.Choice(self.scripts, choices=scripts)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.scripts, -1, 'Select an install script to edit:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.scripts_list, 0, wx.ALL, 5)
         
+        # Editor panel
+        self.editor = PythonSTC(self.scripts, -1)
+        #self.editor.SetText(demoText + open('Main.py').read())
+        self.editor.EmptyUndoBuffer()
+        self.editor.Colourise(0, -1)
+
+        # line numbers in the margin
+        self.editor.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+        self.editor.SetMarginWidth(1, 25)
+    
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(horiz, 0, wx.ALL|wx.ALIGN_RIGHT, 5)
+        sizer.Add(self.editor, 1, wx.EXPAND|wx.ALL, 5)
+        
+        self.scripts.SetSizer(sizer)
+
     def createDetailsWidgets(self):
         """ Create the widgets for the details tab """
         # Maintainer information
-        self.packager = wx.TextCtrl(self.details)
-        self.email = wx.TextCtrl(self.details)
+        self.maintainer = wx.TextCtrl(self.details)
+        self.maintainer_email = wx.TextCtrl(self.details)
         sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'))
         sizer1.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(self.packager, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.maintainer, 1, wx.CENTER|wx.ALL, 5)
         sizer1.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(self.email, 1, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(self.maintainer_email, 1, wx.CENTER|wx.ALL, 5)
 
         # Required package information
         self.pkg_name = wx.TextCtrl(self.details)
@@ -85,9 +114,9 @@ class CreatorApp(wx.App):
             orient=wx.VERTICAL)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'Name:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_name, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_name, 1, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Version:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
         
         archs = ['32bit', '64bit', 'Any']
@@ -97,7 +126,65 @@ class CreatorApp(wx.App):
         horiz.Add(wx.StaticText(self.details, -1, 'Architecture:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_arch, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.pkg_short, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        horiz.Add(self.pkg_short, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.pkg_long = wx.TextCtrl(self.details, size=(0,100), style=wx.TE_MULTILINE)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Long Description:'), 0, wx.ALL, 5)
+        horiz.Add(self.pkg_long, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+        
+        self.creator = wx.TextCtrl(self.details)
+        self.creator_email = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Creator:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.creator, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.creator_email, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.publisher = wx.TextCtrl(self.details)
+        self.rights_holder = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Publisher:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.publisher, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Rights Holder:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.rights_holder, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.release_date = wx.TextCtrl(self.details)
+        self.size = wx.TextCtrl(self.details)
+        self.homepage = wx.TextCtrl(self.details)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Size:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.size, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Release Date:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.release_date, 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(self.homepage, 1, wx.CENTER|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        self.changes = wx.TextCtrl(self.details, size=(-1,100), style=wx.TE_MULTILINE)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Changes:'), 0, wx.ALL, 5)
+        horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
+        sizer2.Add(horiz, 0, wx.EXPAND)
+
+        licenses = []
+        self.license = wx.ListBox(self.details, size=(-1,100), choices=licenses, style=wx.LB_SINGLE)
+        supported = ['95', '98', '2000', 'ME', 'NT', 'XP', 'Vista', '7']
+        supported.reverse()
+        self.supported = wx.ListBox(self.details, size=(-1,100), choices=supported, style=wx.LB_EXTENDED)
+        languages = []
+        self.languages = wx.ListBox(self.details, size=(-1,100), choices=languages, style=wx.LB_EXTENDED)
+        horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'License:'), 0, wx.ALL, 5)
+        horiz.Add(self.license, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Supported:'), 0, wx.ALL, 5)
+        horiz.Add(self.supported, 1, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Languages:'), 0, wx.ALL, 5)
+        horiz.Add(self.languages, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         # Add the different sizers
@@ -216,8 +303,8 @@ class CreatorApp(wx.App):
         try:
             maintainer = self.pkg.get_property('maintainer')
             name, email = maintainer.split('<')
-            self.packager.WriteText(name.strip())
-            self.email.WriteText(email[:-1].strip())
+            self.maintainer.WriteText(name.strip())
+            self.maintainer_email.WriteText(email[:-1].strip())
         except: pass
         
         try:    self.pkg_name.WriteText(self.pkg.get_property('name'))
