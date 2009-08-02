@@ -77,20 +77,23 @@ class CreatorApp(wx.App):
         # Icons for each tab
         icons = ['categories/preferences-system.png',
                  'mimetypes/package-x-generic.png',
+                 'places/start-here.png',
                  'mimetypes/text-x-script.png',
                  'apps/system-software-update.png']
 
         # Tabs
-        self.files = ScrolledPanel(self.notebook)
         self.details = ScrolledPanel(self.notebook)
+        self.files = ScrolledPanel(self.notebook)
+        self.relationships = ScrolledPanel(self.notebook)
         self.scripts = ScrolledPanel(self.notebook)
         self.submit = ScrolledPanel(self.notebook)
 
         # List of the panels, tab names and image indexs
         panels = [(self.details, 'Package Details', 0),
                   (self.files, 'Files', 1),
-                  (self.scripts, 'Scripts', 2),
-                  (self.submit, 'Submit', 3)]
+                  (self.relationships, 'Relationships', 2),
+                  (self.scripts, 'Scripts', 3),
+                  (self.submit, 'Submit', 4)]
 
         # Setup the imagel list
         il = wx.ImageList(32, 32)
