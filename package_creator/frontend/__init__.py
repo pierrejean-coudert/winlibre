@@ -72,7 +72,7 @@ class CreatorApp(wx.App):
         return True
 
     def createTabs(self):
-        self.notebook = wx.Notebook(self.frame, -1)
+        self.notebook = wx.Notebook(self.frame)
 
         # Icons for each tab
         icons = ['categories/preferences-system.png',
@@ -112,26 +112,63 @@ class CreatorApp(wx.App):
         self.EnablePages(False)
     
     def createScriptsWidgets(self):
-        scripts = ['preinstall.py', 'install.py', 'postinstall.py', 'preremove.py', 'remove.py', 'postremove.py']
-        self.scripts_list = wx.Choice(self.scripts, choices=scripts)
-        self.Bind(wx.EVT_CHOICE, self.EditScript, self.scripts_list)
-        horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.scripts, -1, 'Select an install script to edit:'), 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(self.scripts_list, 0, wx.ALL, 5)
+        self.scripts_notebook = wx.Notebook(self.scripts)
         
-        # Editor panel
-        self.editor = PythonSTC(self.scripts, -1)
-        #self.editor.SetText(demoText + open('Main.py').read())
-        self.editor.EmptyUndoBuffer()
-        self.editor.Colourise(0, -1)
+        self.scripts.preinstall = wx.Panel(self.scripts_notebook)
+        self.scripts.install = wx.Panel(self.scripts_notebook)
+        self.scripts.postinstall = wx.Panel(self.scripts_notebook)
+        self.scripts.preremove = wx.Panel(self.scripts_notebook)        
+        self.scripts.remove = wx.Panel(self.scripts_notebook)
+        self.scripts.postremove = wx.Panel(self.scripts_notebook)
+        
+        tabs = [(self.scripts.preinstall, 'preinstall.py'),
+                (self.scripts.install, 'install.py'),
+                (self.scripts.postinstall, 'postinstall.py'),
+                (self.scripts.preremove, 'preremove.py'),
+                (self.scripts.remove, 'remove.py'),
+                (self.scripts.postremove, 'postremove.py')]
 
-        # line numbers in the margin
-        self.editor.SetMarginType(1, stc.STC_MARGIN_NUMBER)
-        self.editor.SetMarginWidth(1, 25)
-    
+        for item in tabs:
+            self.scripts_notebook.AddPage(item[0], item[1])
+
+        # Preinstall editor
+        self.scripts.preinstall.editor = PythonSTC(self.scripts.preinstall, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.preinstall.editor, 1, wx.EXPAND)
+        self.scripts.preinstall.SetSizer(sizer)
+        
+        # Install editor
+        self.scripts.install.editor = PythonSTC(self.scripts.install, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.install.editor, 1, wx.EXPAND)
+        self.scripts.install.SetSizer(sizer)
+        
+        # Postinstall editor
+        self.scripts.postinstall.editor = PythonSTC(self.scripts.postinstall, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.postinstall.editor, 1, wx.EXPAND)
+        self.scripts.postinstall.SetSizer(sizer)
+        
+        # Preremove editor
+        self.scripts.preremove.editor = PythonSTC(self.scripts.preremove, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.preremove.editor, 1, wx.EXPAND)
+        self.scripts.preremove.SetSizer(sizer)
+        
+        # Remove editor
+        self.scripts.remove.editor = PythonSTC(self.scripts.remove, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.remove.editor, 1, wx.EXPAND)
+        self.scripts.remove.SetSizer(sizer)
+        
+        # Postemove editor
+        self.scripts.postremove.editor = PythonSTC(self.scripts.postremove, -1)
+        sizer = wx.BoxSizer()
+        sizer.Add(self.scripts.postremove.editor, 1, wx.EXPAND)
+        self.scripts.postremove.SetSizer(sizer)
+        
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(horiz, 0, wx.ALL|wx.ALIGN_RIGHT, 5)
-        sizer.Add(self.editor, 1, wx.EXPAND|wx.ALL, 5)
+        sizer.Add(self.scripts_notebook, 1, wx.EXPAND|wx.ALL, 5)
         
         self.scripts.SetSizer(sizer)
 
@@ -283,13 +320,7 @@ class CreatorApp(wx.App):
         
         self.frame.SetMenuBar(menubar)
         self.frame.CreateStatusBar()
-
-    def EditScript(self, e):
-        i = self.scripts_list.GetSelection()
-        filename = self.scripts_list.GetItems()[i]
-        self.editor.SetText(self.pkg.scripts[filename])
-        #TODO: Save text or create 6 tabs for separate scripts, latter is better?
-        
+    
     def OnClose(self, e):
         """ File->Exit closes application
         Looks like they don't want to play with me anymore :(
@@ -330,28 +361,26 @@ class CreatorApp(wx.App):
         self.EnablePages()
             
     def NewPackage(self, filename=None):
-        """ Sets the current package """
+        """ Sets the current package and loads files """
         self.pkg = Package()
         if filename:
             try: # Load info
                 self.pkg.from_file(filename)
+                # Load scripts
+                scripts = [('preinstall.py', self.scripts.preinstall.editor),
+                           ('install.py', self.scripts.install.editor),
+                           ('postinstall.py', self.scripts.postinstall.editor),
+                           ('preremove.py', self.scripts.preremove.editor),
+                           ('remove.py', self.scripts.remove.editor),
+                           ('postremove.py', self.scripts.postremove.editor)]
+
+                for item in scripts:
+                    try:
+                        item[1].SetText(open(item[0]).read())
+                    except:
+                        pass
             except:
                 return False
-
-            # Load scripts
-            folder = os.path.dirname(filename)
-            self.pkg.scripts = {'preinstall.py' : '',
-                                'install.py' : '',
-                                'postinstall.py' : '',
-                                'preremove.py' : '',
-                                'remove.py' : '',
-                                'postremove.py' : ''}
-
-            for item in self.pkg.scripts.keys():
-                try:
-                    self.pkg.scripts[item] = open(os.path.join(folder, item)).read()
-                except:
-                    pass
             return True
         else:
             return False
