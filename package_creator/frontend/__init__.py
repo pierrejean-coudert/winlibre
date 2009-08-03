@@ -114,6 +114,7 @@ class CreatorApp(wx.App):
     def createScriptsWidgets(self):
         scripts = ['preinstall.py', 'install.py', 'postinstall.py', 'preremove.py', 'remove.py', 'postremove.py']
         self.scripts_list = wx.Choice(self.scripts, choices=scripts)
+        self.Bind(wx.EVT_CHOICE, self.EditScript, self.scripts_list)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.scripts, -1, 'Select an install script to edit:'), 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.scripts_list, 0, wx.ALL, 5)
@@ -282,6 +283,12 @@ class CreatorApp(wx.App):
         
         self.frame.SetMenuBar(menubar)
         self.frame.CreateStatusBar()
+
+    def EditScript(self, e):
+        i = self.scripts_list.GetSelection()
+        filename = self.scripts_list.GetItems()[i]
+        self.editor.SetText(self.pkg.scripts[filename])
+        #TODO: Save text or create 6 tabs for separate scripts, latter is better?
         
     def OnClose(self, e):
         """ File->Exit closes application
@@ -326,11 +333,28 @@ class CreatorApp(wx.App):
         """ Sets the current package """
         self.pkg = Package()
         if filename:
-            try:
+            try: # Load info
                 self.pkg.from_file(filename)
             except:
                 return False
-        return True
+
+            # Load scripts
+            folder = os.path.dirname(filename)
+            self.pkg.scripts = {'preinstall.py' : '',
+                                'install.py' : '',
+                                'postinstall.py' : '',
+                                'preremove.py' : '',
+                                'remove.py' : '',
+                                'postremove.py' : ''}
+
+            for item in self.pkg.scripts.keys():
+                try:
+                    self.pkg.scripts[item] = open(os.path.join(folder, item)).read()
+                except:
+                    pass
+            return True
+        else:
+            return False
     
     def LoadInfo(self):
         """ Loads the package information into the GUI widgets """
