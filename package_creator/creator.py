@@ -75,11 +75,6 @@ def main(argv):
 
     # Setup logging
     logging.basicConfig(level=opts.verbose, format=LOG_FORMAT, datefmt=DATE)
-    
-    logging.error('e')
-    logging.warning('w')
-    logging.info('i')
-    logging.debug('d')
 
     # Change dir if necessary
     if opts.folder:
