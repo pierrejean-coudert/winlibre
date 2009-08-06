@@ -293,7 +293,7 @@ class Package(Writeable):
                         install_flag = 2                    
                 except:
                     print 'Failed to execute %s script'% script_name
-                    #if install script encounters error,then not installed
+                    #if install script encounters error,implies not installed
                     if(script_name == 'install'):
                         return -1, 'not installed'
                 
