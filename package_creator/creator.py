@@ -21,6 +21,7 @@ from wpkg.package import Package, List, PackageList, PackageShort
 __appname__ = 'WinLibre Package Creator'
 __version__ = '0.0.1'
 LOG_FORMAT = '%(asctime)s %(levelname)-8s %(message)s'
+DATE = '%a, %d %b %Y %H:%M:%S'
 VERSION = '%s %s' % (__name__, __version__)
 USAGE = """%prog [options] command
 
@@ -51,14 +52,14 @@ def parse(args=None):
                         help='use FOLDER as the working directory.', 
                         metavar='FOLDER')
     parser.add_option('-q', '--quiet', action='store_const', const=0, 
-                        dest='verbose', default=0, 
+                        dest='verbose', default=logging.WARNING, 
                         help='display only errors or warnings, ' \
                         'enabled by default')
     parser.add_option('-v', '--verbose',
-                      action='store_const', const=1, dest='verbose',
+                      action='store_const', const=logging.INFO, dest='verbose',
                       help='display more information')
     parser.add_option('-d', '--debug',
-                      action='store_const', const=2, dest='verbose',
+                      action='store_const', const=logging.DEBUG, dest='verbose',
                       help='display debugging information')
     parser.add_option('-o', '--overwrite', action='store_true',
             default=False, dest='overwrite', help='overwrite existing files')
@@ -73,12 +74,12 @@ def main(argv):
     opts, args = parse(argv)
 
     # Setup logging
-    if opts.verbose == 1:
-        logging.basicConfig(level=logging.INFO)
-    elif opts.verbose == 2:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig()
+    logging.basicConfig(level=opts.verbose, format=LOG_FORMAT, datefmt=DATE)
+    
+    logging.error('e')
+    logging.warning('w')
+    logging.info('i')
+    logging.debug('d')
 
     # Change dir if necessary
     if opts.folder:
