@@ -4,6 +4,7 @@ import creator
 import lib
 import logging
 import os.path
+import shutil
 import wpkg
 import wx
 import wx.lib.buttons  as  buttons
@@ -113,14 +114,56 @@ class CreatorApp(wx.App):
         self.createScriptsWidgets()
         self.EnablePages(False)
     
+    def OnAddFile(self, e):
+        """ Adds a file to the package """
+        old_path = os.getcwd()
+        
+        dlg = wx.FileDialog(
+            self.files, message="Choose a file",
+            #defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard='All files (*.*)|*.*',
+            style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            )
+    
+        if dlg.ShowModal() == wx.ID_OK:
+            # This returns a Python list of files that were selected.
+            paths = dlg.GetPaths()
+
+            dest_dir = os.path.join(old_path, 'files')
+            if not os.path.exists(dest_dir):
+                os.mkdir(dest_dir)
+            
+            for path in paths:
+                shutil.copyfile(path, os.path.join(dest_dir, 
+                                os.path.basename(path)))
+
+        os.chdir(old_path)
+        self.LoadFilesList()
+        dlg.Destroy()
+    
+    def OnRemoveFile(self, e):
+        """ Remove files from package """
+        dir = os.path.join(os.getcwd(), 'files')
+        items = self.files.list.GetItems()
+        for x in self.files.list.GetSelections():
+            os.remove(os.path.join(dir, items[x]))
+        self.LoadFilesList()
+    
     def createFilesWidgets(self):
-        self.files.list = wx.ListBox(self.files)
+        """ Creates widgets for files tab """
+        self.files.list = wx.ListBox(self.files, style=wx.LB_EXTENDED)
         add = wx.Button(self.files, wx.ID_ADD)
+        self.Bind(wx.EVT_BUTTON, self.OnAddFile, add)
         rm = wx.Button(self.files, wx.ID_REMOVE)
+        self.Bind(wx.EVT_BUTTON, self.OnRemoveFile, rm)
+        refresh = wx.Button(self.files, wx.ID_REFRESH)
+        self.Bind(wx.EVT_BUTTON, self.LoadFilesList, refresh)
         
         btnPanel = wx.BoxSizer(wx.VERTICAL)
         btnPanel.Add(add)
         btnPanel.Add(rm)
+        btnPanel.Add(refresh)
         
         sizer = wx.BoxSizer()
         sizer.Add(self.files.list, 1, wx.EXPAND|wx.ALL, 5)
@@ -403,6 +446,7 @@ class CreatorApp(wx.App):
             return False
         
         self.LoadInfo()
+        self.LoadFilesList()
         self.menu_save.Enable()
         self.EnablePages()
             
@@ -417,6 +461,20 @@ class CreatorApp(wx.App):
             return True
         else:
             return False
+
+    def LoadFilesList(self, e=None):
+        """ Loads the list of files in files/ included in the package """
+        try:
+            self.files.list.Clear()
+            self.files.list.SetItems(os.listdir( \
+                            os.path.join(os.getcwd(),'files')))
+        except:
+            pass
+        
+        # If there are no files, then remove the directory
+        dir = os.path.join(os.getcwd(), 'files')
+        if os.path.exists(dir) and not os.listdir(dir):
+            os.rmdir(dir)
     
     def LoadInfo(self):
         """ Loads the package information into the GUI widgets """
@@ -434,14 +492,6 @@ class CreatorApp(wx.App):
                 item[1].SetText(open(item[0]).read())
             except:
                 pass
-
-        # Load files list
-        ##################
-        try:
-            self.files.list.SetItems(os.listdir( \
-                        os.path.join(os.getcwd(),'files')))
-        except:
-            pass
 
         # Load information from info.xml
         ##################
