@@ -2,16 +2,18 @@
 
 import creator
 import lib
+import logging
 import os.path
+import wpkg
 import wx
 import wx.lib.buttons  as  buttons
+import wx.lib.hyperlink as hyperlink
+import  wx.stc  as  stc
+
 from wx import xrc
-import wpkg
 from wpkg.package import *
 from wx.lib.scrolledpanel import ScrolledPanel
-import wx.lib.hyperlink as hyperlink
 from editor import PythonSTC
-import  wx.stc  as  stc
 
 ICONS_16 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/16x16/')
 ICONS_32 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/32x32/')
