@@ -1,0 +1,3 @@
+- No able to download packages.xml file when defined as a local file on Windows system.
+  It is due to smart.media.processFilePath that loop infinite.
+
