@@ -41,7 +41,7 @@ class installer ():
             print 'Download error occoured'
 
     def binInstall(self, install_arg):
-    #Downloaded binary installer
+    #binary(downloaded/extracted) installer
         print '\n***Installing binary...***'
         try:
             p = Popen(install_arg, stdout=PIPE)
@@ -49,7 +49,7 @@ class installer ():
             print 'Package details :', self._package_details
             return True
         except Exception, e:
-            print 'Errors occoured during install', e
+            print 'Errors occoured during install :', e
             res = -1 #Error code
             return False
     
@@ -61,46 +61,54 @@ class MSIInstaller(installer):
             return 'Installed'
     
 
-'''
-#placeholder, implementing msi for now
-class NSIInstaller():
-    def nsis_installer(self,installer_path,package_details):
-        print 'Downloading package...'
-        try:
-            fileDownloader.fileDownloader('http://127.0.0.1/winlibrepacman/tas.msi','b')
-        except:
-            print 'An error occoured', #name of error
-        print 'Download Finished...'
-        print 'Now installing...'
-        #install_arg = 'msiexec /i '+installer_path+' /quiet'
-        try:
-            os.system(install_arg)
-            print 'Installed the package. ;)'
-        except:
-            print 'Errors occoured during install'
-        print 'Now logging to the installerLog.xml'
-        installerlog.writeLog(package_details)
+class NSISInstaller(installer):
+    def install(self):
+        print 'binary type: NSIS'
+        install_arg = self._path+ ' /S'
+        print 'install arg:', install_arg
+        if(self.binInstall(install_arg)):
+            return 'Installed'
        
-'''
+
 def pkg_name(download_url):
-    #get the name of the package from the URL
+    #get the name of the package/binary from the URL
     parsed_url = urlparse.urlsplit(download_url)
     bin_name = parsed_url[2].split('/')[-1]
     return bin_name
     
 
 def install(package_type,download_url,package_details):
+    #path to the binary
+    bin_path = os.getenv('temp') + '\\' + pkg_name(download_url)
+    #print 'Path : ', bin_path
+    
+    #MSI package
     if(package_type == 'msi'):
-        path = os.getenv('temp') + '\\' + pkg_name(download_url)
-        print 'Path : ', path
-        installObj = MSIInstaller(path,package_details)
+        installObj = MSIInstaller(bin_path,package_details)
         print '\n***Downloading binaries/installables...***'
         installObj.downloader(download_url)
         if (installObj.install() == 'Installed'):
-            #installObj.logger(package_details)
-            print '***Logged***'
+            installObj.logger(package_details)
+            print '\n***Logged***'
         else:
             print 'Error occoured during install'
+            return -1, 'not installed'
+    
+    #NSIS package
+    elif(package_type == 'nsis'):
+        installObj = NSISInstaller(bin_path,package_details)
+        print '\n***Downloading binaries/installables...***'
+        installObj.downloader(download_url)
+        if (installObj.install() == 'Installed'):
+            try:
+                installObj.logger(package_details)
+                print '\n***Logged***'
+            except:
+                print 'hahaha logger failed'
+        else:
+            print 'Error occoured during install'
+            return -1, 'not installed'
+        
     ## add the if entry for nsis package and inno setup package
     
 
