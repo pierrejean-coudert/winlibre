@@ -2,16 +2,19 @@
 
 import creator
 import lib
+import logging
 import os.path
+import shutil
+import wpkg
 import wx
 import wx.lib.buttons  as  buttons
+import wx.lib.hyperlink as hyperlink
+import  wx.stc  as  stc
+
 from wx import xrc
-import wpkg
 from wpkg.package import *
 from wx.lib.scrolledpanel import ScrolledPanel
-import wx.lib.hyperlink as hyperlink
 from editor import PythonSTC
-import  wx.stc  as  stc
 
 ICONS_16 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/16x16/')
 ICONS_32 = os.path.join(os.path.dirname(__file__), 'tango-icon-theme/32x32/')
@@ -107,9 +110,71 @@ class CreatorApp(wx.App):
             item[0].SetupScrolling()
             
         self.createDetailsWidgets()
-        #self.createFilesWidgets()
+        self.createFilesWidgets()
         self.createScriptsWidgets()
         self.EnablePages(False)
+    
+    def OnAddFile(self, e):
+        """ Adds a file to the package """
+        old_path = os.getcwd()
+        
+        dlg = wx.FileDialog(
+            self.files, message="Choose a file",
+            #defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard='All files (*.*)|*.*',
+            style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            )
+    
+        if dlg.ShowModal() == wx.ID_OK:
+            # This returns a Python list of files that were selected.
+            paths = dlg.GetPaths()
+
+            dest_dir = os.path.join(old_path, 'files')
+            if not os.path.exists(dest_dir):
+                os.mkdir(dest_dir)
+            
+            for path in paths:
+                shutil.copyfile(path, os.path.join(dest_dir, 
+                                os.path.basename(path)))
+
+        os.chdir(old_path)
+        self.LoadFilesList()
+        dlg.Destroy()
+    
+    def OnRemoveFile(self, e):
+        """ Remove files from package """
+        dir = os.path.join(os.getcwd(), 'files')
+        items = self.files.list.GetItems()
+        for x in self.files.list.GetSelections():
+            os.remove(os.path.join(dir, items[x]))
+        self.LoadFilesList()
+    
+    def createFilesWidgets(self):
+        """ Creates widgets for files tab """
+        self.files.list = wx.ListBox(self.files, style=wx.LB_EXTENDED)
+        add = wx.Button(self.files, wx.ID_ADD)
+        self.Bind(wx.EVT_BUTTON, self.OnAddFile, add)
+        rm = wx.Button(self.files, wx.ID_REMOVE)
+        self.Bind(wx.EVT_BUTTON, self.OnRemoveFile, rm)
+        refresh = wx.Button(self.files, wx.ID_REFRESH)
+        self.Bind(wx.EVT_BUTTON, self.LoadFilesList, refresh)
+        
+        btnPanel = wx.BoxSizer(wx.VERTICAL)
+        btnPanel.Add(add)
+        btnPanel.Add(rm)
+        btnPanel.Add(refresh)
+        
+        sizer = wx.BoxSizer()
+        sizer.Add(self.files.list, 1, wx.EXPAND|wx.ALL, 5)
+        sizer.Add(btnPanel, 0, wx.ALL, 5)
+        
+        vert = wx.BoxSizer(wx.VERTICAL)
+        vert.Add(wx.StaticText(self.files, -1, 
+            'The following application files will be included:'), 0, wx.ALL, 5)
+        vert.Add(sizer, 1, wx.EXPAND)
+        
+        self.files.SetSizer(vert)
     
     def createScriptsWidgets(self):
         self.scripts_notebook = wx.Notebook(self.scripts)
@@ -144,7 +209,8 @@ class CreatorApp(wx.App):
         self.scripts.install.SetSizer(sizer)
         
         # Postinstall editor
-        self.scripts.postinstall.editor = PythonSTC(self.scripts.postinstall, -1)
+        self.scripts.postinstall.editor = PythonSTC(self.scripts.postinstall, 
+                                                    -1)
         sizer = wx.BoxSizer()
         sizer.Add(self.scripts.postinstall.editor, 1, wx.EXPAND)
         self.scripts.postinstall.SetSizer(sizer)
@@ -178,9 +244,11 @@ class CreatorApp(wx.App):
         self.maintainer = wx.TextCtrl(self.details)
         self.maintainer_email = wx.TextCtrl(self.details)
         sizer1 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Maintainer'))
-        sizer1.Add(wx.StaticText(self.details, -1, 'Packager:'), 0, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(wx.StaticText(self.details, -1, 'Packager:'), 
+            0, wx.CENTER|wx.ALL, 5)
         sizer1.Add(self.maintainer, 1, wx.CENTER|wx.ALL, 5)
-        sizer1.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        sizer1.Add(wx.StaticText(self.details, -1, 'Email:'),
+            0, wx.CENTER|wx.ALL, 5)
         sizer1.Add(self.maintainer_email, 1, wx.CENTER|wx.ALL, 5)
 
         # Required package information
@@ -189,42 +257,52 @@ class CreatorApp(wx.App):
         sizer2 = wx.StaticBoxSizer(wx.StaticBox(self.details, -1, 'Package'),
             orient=wx.VERTICAL)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Name:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Name:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_name, 1, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Version:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Version:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_ver, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
         
         self.pkg_arch = wx.Choice(self.details, -1, choices=archs)
         self.pkg_short = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Architecture:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Architecture:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_arch, 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Short Description:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.pkg_short, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
-        self.pkg_long = wx.TextCtrl(self.details, size=(0,100), style=wx.TE_MULTILINE)
+        self.pkg_long = wx.TextCtrl(self.details, size=(0,100),
+                                    style=wx.TE_MULTILINE)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Long Description:'), 0, wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Long Description:'),
+            0, wx.ALL, 5)
         horiz.Add(self.pkg_long, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
         
         self.creator = wx.TextCtrl(self.details)
         self.creator_email = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Creator:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Creator:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.creator, 1, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Email:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Email:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.creator_email, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
         self.publisher = wx.TextCtrl(self.details)
         self.rights_holder = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Publisher:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Publisher:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.publisher, 1, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Rights Holder:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Rights Holder:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.rights_holder, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
@@ -232,30 +310,37 @@ class CreatorApp(wx.App):
         self.installed_size = wx.TextCtrl(self.details)
         self.homepage = wx.TextCtrl(self.details)
         horiz = wx.BoxSizer()
-        horiz.Add(wx.StaticText(self.details, -1, 'Installed Size:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Installed Size:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.installed_size, 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Release Date:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Release Date:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.release_date, 0, wx.CENTER|wx.ALL, 5)
-        horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'), 0, wx.CENTER|wx.ALL, 5)
+        horiz.Add(wx.StaticText(self.details, -1, 'Homepage:'),
+            0, wx.CENTER|wx.ALL, 5)
         horiz.Add(self.homepage, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
-        self.changes = wx.TextCtrl(self.details, size=(-1,100), style=wx.TE_MULTILINE)
+        self.changes = wx.TextCtrl(self.details, size=(-1,100),
+                                    style=wx.TE_MULTILINE)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'Changes:'), 0, wx.ALL, 5)
         horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
-        self.license = wx.ListBox(self.details, size=(-1,100), choices=licenses, style=wx.LB_SINGLE)
-        self.supported = wx.ListBox(self.details, size=(75,100), choices=supported, style=wx.LB_EXTENDED)
-        self.languages = wx.ListBox(self.details, size=(75,100), choices=languages, style=wx.LB_EXTENDED)
+        self.license = wx.ListBox(self.details, size=(-1,100),
+                                choices=licenses, style=wx.LB_SINGLE)
+        self.supported = wx.ListBox(self.details, size=(75,100),
+                                choices=supported, style=wx.LB_EXTENDED)
+        self.languages = wx.ListBox(self.details, size=(75,100),
+                                choices=languages, style=wx.LB_EXTENDED)
         horiz = wx.BoxSizer()
         horiz.Add(wx.StaticText(self.details, -1, 'License:'), 0, wx.ALL, 5)
         horiz.Add(self.license, 1, wx.CENTER|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Supported:'), 0, wx.ALL, 5)
         horiz.Add(self.supported, 0, wx.CENTER|wx.ALL, 5)
         horiz.Add(hyperlink.HyperLinkCtrl(self.details, -1, 'Languages:',
-                                        URL='http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'))
+                  URL='http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'))
         #horiz.Add(wx.StaticText(self.details, -1, 'Languages:'), 0, wx.ALL, 5)
         horiz.Add(self.languages, 0, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
@@ -271,7 +356,8 @@ class CreatorApp(wx.App):
         # File menu
         filemenu = wx.Menu()
         
-        item = wx.MenuItem(filemenu, -1, '&New...\tCtrl+N', 'Create a new package')
+        item = wx.MenuItem(filemenu, -1, '&New...\tCtrl+N', 
+                            'Create a new package')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/window-new.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -287,7 +373,8 @@ class CreatorApp(wx.App):
         
         filemenu.AppendSeparator()
         
-        self.menu_save = wx.MenuItem(filemenu, -1, '&Save\tCtrl+S', 'Save the package')
+        self.menu_save = wx.MenuItem(filemenu, -1, '&Save\tCtrl+S', 
+                                    'Save the package')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/document-save.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.menu_save.SetBitmap(bmp)
@@ -297,7 +384,8 @@ class CreatorApp(wx.App):
         
         filemenu.AppendSeparator()
         
-        item = wx.MenuItem(filemenu, -1, 'E&xit\tCtrl+X', 'Quit the application')
+        item = wx.MenuItem(filemenu, -1, 'E&xit\tCtrl+X', 
+                            'Quit the application')
         bmp = wx.Image(os.path.join(ICONS_16, 'actions/system-log-out.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -309,7 +397,8 @@ class CreatorApp(wx.App):
         
         # Help menu
         helpmenu = wx.Menu()
-        item = wx.MenuItem(helpmenu, -1, '&About...\tCtrl+A', 'About the application')
+        item = wx.MenuItem(helpmenu, -1, '&About...\tCtrl+A', 
+                            'About the application')
         bmp = wx.Image(os.path.join(ICONS_16, 'apps/system-users.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         item.SetBitmap(bmp)
@@ -357,6 +446,7 @@ class CreatorApp(wx.App):
             return False
         
         self.LoadInfo()
+        self.LoadFilesList()
         self.menu_save.Enable()
         self.EnablePages()
             
@@ -366,28 +456,45 @@ class CreatorApp(wx.App):
         if filename:
             try: # Load info
                 self.pkg.from_file(filename)
-                # Load scripts
-                scripts = [('preinstall.py', self.scripts.preinstall.editor),
-                           ('install.py', self.scripts.install.editor),
-                           ('postinstall.py', self.scripts.postinstall.editor),
-                           ('preremove.py', self.scripts.preremove.editor),
-                           ('remove.py', self.scripts.remove.editor),
-                           ('postremove.py', self.scripts.postremove.editor)]
-
-                for item in scripts:
-                    try:
-                        item[1].SetText(open(item[0]).read())
-                    except:
-                        pass
             except:
                 return False
             return True
         else:
             return False
+
+    def LoadFilesList(self, e=None):
+        """ Loads the list of files in files/ included in the package """
+        try:
+            self.files.list.Clear()
+            self.files.list.SetItems(os.listdir( \
+                            os.path.join(os.getcwd(),'files')))
+        except:
+            pass
+        
+        # If there are no files, then remove the directory
+        dir = os.path.join(os.getcwd(), 'files')
+        if os.path.exists(dir) and not os.listdir(dir):
+            os.rmdir(dir)
     
     def LoadInfo(self):
         """ Loads the package information into the GUI widgets """
-        # Maintainer
+        # Load scripts
+        ##################
+        scripts = [('preinstall.py', self.scripts.preinstall.editor),
+                   ('install.py', self.scripts.install.editor),
+                   ('postinstall.py', self.scripts.postinstall.editor),
+                   ('preremove.py', self.scripts.preremove.editor),
+                   ('remove.py', self.scripts.remove.editor),
+                   ('postremove.py', self.scripts.postremove.editor)]
+
+        for item in scripts:
+            try:
+                item[1].SetText(open(item[0]).read())
+            except:
+                pass
+
+        # Load information from info.xml
+        ##################
         try:
             name, email = self.pkg.get_property('maintainer').split('<')
             self.maintainer.SetValue(name.strip())
@@ -400,17 +507,21 @@ class CreatorApp(wx.App):
         try:    self.pkg_ver.SetValue(self.pkg.get_property('version'))
         except: pass
 
-        try:    self.pkg_arch.Select(archs.index(self.pkg.get_property('architecture')))
+        try:    self.pkg_arch.Select( \
+                            archs.index(self.pkg.get_property('architecture')))
         except: pass
 
-        try:    self.pkg_short.SetValue(self.pkg.get_property('short_description'))
+        try:    self.pkg_short.SetValue( \
+                        self.pkg.get_property('short_description'))
         except: pass
 
-        try:    self.pkg_long.SetValue(self.pkg.get_property('long_description'))
+        try:    self.pkg_long.SetValue( \
+                        self.pkg.get_property('long_description'))
         except: pass
 
         #self.section.SetValue(self.pkg.get_property('section'))
-        try:    self.installed_size.SetValue(str(self.pkg.get_property('installed_size')))
+        try:    self.installed_size.SetValue( \
+                        str(self.pkg.get_property('installed_size')))
         except: pass
         
         try:    
@@ -422,10 +533,12 @@ class CreatorApp(wx.App):
         try:    self.publisher.SetValue(self.pkg.get_property('publisher'))
         except: pass
         
-        try:    self.rights_holder.SetValue(self.pkg.get_property('rights_holder'))
+        try:    self.rights_holder.SetValue( \
+                        self.pkg.get_property('rights_holder'))
         except: pass
         
-        try:    self.release_date.SetValue(self.pkg.get_property('release_date'))
+        try:    self.release_date.SetValue( \
+                        self.pkg.get_property('release_date'))
         except: pass
         
         try:    
@@ -481,9 +594,3 @@ class CreatorApp(wx.App):
             result = dlg.GetPath()
         dlg.Destroy()
         return result
-    
-    def setLogger(self, logger):
-        """ Sets the logger of the GUI 
-        self.logger is usable after OnInit()
-        """
-        self.logger = logger

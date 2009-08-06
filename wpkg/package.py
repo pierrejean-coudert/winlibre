@@ -1,6 +1,5 @@
 # Setup the logger for elements lib
 import logging
-logging.basicConfig()
 
 # Normal imports
 from elements import Element
