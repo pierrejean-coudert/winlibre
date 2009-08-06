@@ -50,16 +50,16 @@ def parse(args=None):
     parser.add_option('-f', '--folder', dest='folder', 
                         help='use FOLDER as the working directory.', 
                         metavar='FOLDER')
-    parser.add_option('-q', '--quiet', action='store_const', const=0, 
-                        dest='verbose', default=0, 
-                        help='display only errors or warnings, ' \
-                        'enabled by default')
-    parser.add_option('-v', '--verbose',
-                      action='store_const', const=1, dest='verbose',
-                      help='display more information')
-    parser.add_option('-d', '--debug',
-                      action='store_const', const=2, dest='verbose',
-                      help='display debugging information')
+#    parser.add_option('-q', '--quiet', action='store_const', const=0, 
+#                        dest='verbose', default=40, 
+#                        help='display only errors or warnings, ' \
+#                        'enabled by default')
+#    parser.add_option('-v', '--verbose',
+#                      action='store_const', const=30, dest='verbose',
+#                      help='display more information')
+#    parser.add_option('-d', '--debug',
+#                      action='store_const', const=10, dest='verbose',
+#                      help='display debugging information')
     parser.add_option('-o', '--overwrite', action='store_true',
             default=False, dest='overwrite', help='overwrite existing files')
     if args:
@@ -72,13 +72,7 @@ def main(argv):
     """ Main function of execution """
     opts, args = parse(argv)
 
-    # Setup logging
-    logger = logging.getLogger(__appname__)
-
-    if opts.verbose == 1:
-        logger.setLevel(logging.INFO)
-    elif opts.verbose == 2:
-        logger.setLevel(logging.DEBUG)
+    logging.basicConfig()
 
     # Change dir if necessary
     if opts.folder:
@@ -95,7 +89,7 @@ def main(argv):
             import frontend
             app = frontend.CreatorApp(0)
             #app = frontend.CreatorApp(redirect=True,filename='log.txt')
-            app.setLogger(logger)
+            #app.setLogger(logger)
             app.MainLoop()
 #        except:
 #            logging.error('Could not load the interface. Make sure you have wxPython installed.')
