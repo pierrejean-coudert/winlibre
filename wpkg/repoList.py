@@ -8,7 +8,8 @@ def package_info(name='',version='',format=''):
     
     global repo_url
 
-    repo_url = "http://repository.url"
+    repo_url = "http://ks201796.kimsufi.com:8004/"
+    #package details filename = pkg_det_filename
     pkg_det_filename = None
     
     #this function gets the data from the repository
@@ -35,12 +36,15 @@ def package_info(name='',version='',format=''):
     
     if(name is 'all' and version is 'multiple'):
     #fetching multiple package info(all package list)
-        request_URL = repo_url+ 'api/'+'packages/'+name+'.'+format
+        request_URL = repo_url+ 'api/'+'packages/'+name+'/'+format
         pkg_det_filename = 'packages.xml'
         
     
     #actual fetching from the server begins
     try:
+        #request URL to end with /
+        if(request_URL[-1] is not '/'):
+            request_URL = request_URL + '/'
         print request_URL
         data = urlopen(request_URL)
         if(pkg_det_filename is None):
@@ -92,5 +96,5 @@ def all_package_details(name='',version='',format=''):
     package_details(name,version,'xml')
 
 #entry point 
-all_package_details('firefox',3.011,'xml')
+package_details('Firefox','latest','xml')
     
