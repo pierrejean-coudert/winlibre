@@ -1,0 +1,31 @@
+Package Creator
+
+CLI Usage
+---------
+
+creator.py --help
+    - Displays the available CLI parameters
+    
+creator.py --overwrite
+    - Overwrites the package if one already exists
+    
+creator.py --folder FOLDER
+    - Uses FOLDER as the working directory
+    
+creator.py init
+    - Initializes a new package in the current working directory
+      which may be moved using --folder
+    
+creator.py set PROPERTY VALUE
+    - Sets the value of a property on a package. VALUE should always be wrapped
+      in double quotes (").
+      
+    creator.py set depends "pkg1,version;pkg2,version"
+        - Sets the dependencies of the current package to depend on both pkg1
+          and pkg2
+      
+creator.py show PROPERTY
+    - Displays the value of a property on a package.
+    
+creator.py clear PROPERTY
+    - Clears the value of a property on a package.
