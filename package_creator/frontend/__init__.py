@@ -397,7 +397,7 @@ class CreatorApp(wx.App):
         
         # Help menu
         helpmenu = wx.Menu()
-        item = wx.MenuItem(helpmenu, -1, '&About...\tCtrl+A', 
+        item = wx.MenuItem(helpmenu, -1, 'A&bout...\tCtrl+B', 
                             'About the application')
         bmp = wx.Image(os.path.join(ICONS_16, 'apps/system-users.png'),
             wx.BITMAP_TYPE_PNG).ConvertToBitmap()
@@ -571,7 +571,105 @@ class CreatorApp(wx.App):
         
     def OnSave(self, e):
         """ File->Save saves the package contents """
-        print 'saving'
+        # Load scripts
+        ##################
+        scripts = [('preinstall.py', self.scripts.preinstall.editor),
+                   ('install.py', self.scripts.install.editor),
+                   ('postinstall.py', self.scripts.postinstall.editor),
+                   ('preremove.py', self.scripts.preremove.editor),
+                   ('remove.py', self.scripts.remove.editor),
+                   ('postremove.py', self.scripts.postremove.editor)]
+
+        for item in scripts:
+            try:
+                item[1].SaveFile(item[0])
+            except:
+                pass
+
+        # Load information from info.xml
+        ##################
+        try:
+            #name, email = self.pkg.get_property('maintainer').split('<')
+            name = self.maintainer.GetValue().strip()
+            email = self.maintainer_email.GetValue().strip()
+            self.pkg.set_property('maintainer', '%s <%s>' % (name, email))
+            
+            self.pkg.set_property('name', self.pkg_name.GetValue())
+            self.pkg.set_property('version', self.pkg_ver.GetValue())
+            self.pkg.set_property('architecture', self.pkg_arch.GetValue())            
+            
+            # Write file
+            f = open(os.path.abspath(wpkg.package.INFO_FILENAME), 'w')
+            f.write(self.pkg.to_string())
+            f.close()
+            wx.MessageBox('Successfully saved package.', 'Package Saved')
+        except Exception, e:
+            # TODO: Use validators instead of try/except
+            wx.MessageBox(e.__str__(), 'Error')
+
+#        try:    self.pkg_name.SetValue(self.pkg.get_property('name'))
+#        except: pass
+
+#        try:    self.pkg_ver.SetValue(self.pkg.get_property('version'))
+#        except: pass
+
+#        try:    self.pkg_arch.Select( \
+#                            archs.index(self.pkg.get_property('architecture')))
+#        except: pass
+
+#        try:    self.pkg_short.SetValue( \
+#                        self.pkg.get_property('short_description'))
+#        except: pass
+
+#        try:    self.pkg_long.SetValue( \
+#                        self.pkg.get_property('long_description'))
+#        except: pass
+
+#        #self.section.SetValue(self.pkg.get_property('section'))
+#        try:    self.installed_size.SetValue( \
+#                        str(self.pkg.get_property('installed_size')))
+#        except: pass
+        
+#        try:    
+#                name, email = self.pkg.get_property('creator').split('<')
+#                self.creator.SetValue(name.strip())
+#                self.creator_email.SetValue(email[:-1].strip())
+#        except: pass
+        
+#        try:    self.publisher.SetValue(self.pkg.get_property('publisher'))
+#        except: pass
+        
+#        try:    self.rights_holder.SetValue( \
+#                        self.pkg.get_property('rights_holder'))
+#        except: pass
+        
+#        try:    self.release_date.SetValue( \
+#                        self.pkg.get_property('release_date'))
+#        except: pass
+        
+#        try:    
+#                for item in self.pkg.get_property('supported'):
+#                    try:    self.supported.Select(supported.index(item))
+#                    except: pass
+#        except: pass
+        
+#        try:    self.changes.SetValue(self.pkg.get_property('changes'))
+#        except: pass
+        
+#        try:    
+#                for item in self.pkg.get_property('languages'):
+#                    try:    self.languages.Select(languages.index(item))
+#                    except: pass
+#        except: pass
+        
+#        try:    
+#                index = licenses.index(self.pkg.get_property('license'))
+#                self.license.Select(index)
+#        except: pass
+        
+#        try:    self.homepage.SetValue(self.pkg.get_property('homepage'))
+#        except: pass
+        
     
     def OnAbout(self, e):
         """ Displays the about window """
