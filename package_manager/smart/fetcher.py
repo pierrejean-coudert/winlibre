@@ -1057,6 +1057,8 @@ class FTPHandler(FetcherHandler):
                 if mtime:
                     os.utime(localpathpart, (mtime, mtime))
 
+                if os.path.isfile(localpath):
+                    os.remove(localpath)
                 os.rename(localpathpart, localpath)
 
                 valid, reason = fetcher.validate(item, localpath,
@@ -1204,7 +1206,6 @@ class URLLIBHandler(FetcherHandler):
                 if hasattr(remote, "errcode") and remote.errcode != 206:
                     # 206 = Partial Content
                     raise remote
-
                 info = remote.info()
 
                 if "content-length" in info:
@@ -1245,7 +1246,9 @@ class URLLIBHandler(FetcherHandler):
                 finally:
                     local.close()
                     remote.close()
-
+                
+                if os.path.isfile(localpath):
+                    os.remove(localpath)
                 os.rename(localpathpart, localpath)
 
                 valid, reason = fetcher.validate(item, localpath,
@@ -1547,6 +1550,8 @@ class PyCurlHandler(FetcherHandler):
                 else:
                     if os.path.isfile(localpath):
                         os.unlink(localpath)
+                    if os.path.isfile(localpath):
+                        os.remove(localpath)
                     os.rename(localpath+PARTSUFFIX, localpath)
                     mtime = handle.getinfo(pycurl.INFO_FILETIME)
                     if mtime != -1:
@@ -1831,6 +1836,8 @@ class SCPHandler(FetcherHandler):
                 if status != 0:
                     raise Error, output
 
+                if os.path.isfile(localpath):
+                    os.remove(localpath)
                 os.rename(item.localpath, localpath)
 
                 fetchedsize = os.path.getsize(localpath)
