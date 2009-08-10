@@ -201,7 +201,7 @@ class Fetcher(object):
         if local == total or self._caching is ALWAYS:
             if progress:
                 progress.add(total)
-            return
+            return False #knowing when cached download is used
         if progress:
             prog = progress
             prog.add(local)
