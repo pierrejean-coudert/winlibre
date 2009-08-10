@@ -1,0 +1,39 @@
+<package>
+  <name>Example</name>
+  <version>1.0</version>
+  <architecture>32bit</architecture>
+  <short-description>hey</short-description>
+  <long-description>ohai
+nice</long-description>
+  <section>utils</section>
+  <installed-size>30005</installed-size>
+  <maintainer>Chris Oliver &lt;excid3@gmail.com&gt;</maintainer>
+  <creator>Chris Oliver &lt;excid3@gmail.com&gt;</creator>
+  <publisher>heybro</publisher>
+  <rights-holder>me!</rights-holder>
+  <release-date>today!</release-date>
+  <supported xmlns="">
+    <version>Vista</version>
+    <version>XP</version>
+  </supported>
+  <changes>x
+y
+z</changes>
+  <languages xmlns="">
+    <language>aa</language>
+    <language>en</language>
+  </languages>
+  <license>Other</license>
+  <homepage>http://excid3.com</homepage>
+  <replaces xmlns="" />
+  <provides xmlns="" />
+  <pre-depends xmlns="" />
+  <depends xmlns="" />
+  <recommends xmlns="" />
+  <suggests xmlns="" />
+  <conflicts xmlns="" />
+  <urls xmlns="">
+    <url>http://pkg</url>
+    <url>torrents</url>
+  </urls>
+</package>

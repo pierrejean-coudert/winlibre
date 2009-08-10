@@ -18,7 +18,6 @@ class PacManPackageManager(PackageManager):
         install = {}
         remove = {}
         for pkg in changeset:
-            #DBUG** print 'pkg ',pkg
             if changeset[pkg] is INSTALL:
                 install[pkg] = True
             else:

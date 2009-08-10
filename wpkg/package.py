@@ -1,6 +1,5 @@
 # Setup the logger for elements lib
 import logging
-logging.basicConfig()
 
 # Normal imports
 from elements import Element
@@ -265,7 +264,10 @@ class Package(Writeable):
         if os.path.isfile(path):
             dest_path = os.path.dirname(path)
             files  = self.uncompress(path, dest_path)
-            dir_name = os.path.dirname(files[0])
+            #dir_name = os.path.dirname(files[0])
+            #dir_name was being returned '' because files[0] didnt have directory information
+            #essentially,dir_name = dest_path since files are being extracted there
+            dir_name = dest_path
             if len(files) > 0:
                 init_file_path = os.path.join(dest_path, dir_name,'__init__.py')
                 if not os.path.exists(init_file_path):
@@ -274,11 +276,30 @@ class Package(Writeable):
             else:
                 return -2, 'not installed'
             
-            f, filename, desc = imp.find_module(dir_name, [dest_path])
-            module = imp.load_module('pkg', f, filename, desc)
-            from pkg import install
-            install.run()
-            return 0, 'installed'
+            #f, filename, desc = imp.find_module(dir_name, [dest_path])
+            #module = imp.load_module('pkg', f, filename, desc)
+            #from pkg import install
+            #install.run()
+            for script_name in ['pre_install','install','post_install']:
+                try:
+                    f, file_name, desc = imp.find_module(script_name, [dir_name])
+                    install_script = imp.load_module(script_name, f, file_name, desc)
+                    #install_flag = 1 (install script executed)
+                    #install_flag = 2 (post_install script also executed)
+                    if(script_name == 'install'):
+                        install_flag = 1
+                    if(script_name == 'post_install'):
+                        install_flag = 2                    
+                except:
+                    print 'Failed to execute %s script'% script_name
+                    #if install script encounters error,implies not installed
+                    if(script_name == 'install'):
+                        return -1, 'not installed'
+                
+            if(install_flag == 1 or install_flag == 2):
+                return 0, 'installed'
+            else:
+                return -1, 'not installed'
         else:
             return -1, 'not installed'
             
