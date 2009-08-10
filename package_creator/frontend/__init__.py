@@ -596,7 +596,14 @@ class CreatorApp(wx.App):
             
             self.pkg.set_property('name', self.pkg_name.GetValue())
             self.pkg.set_property('version', self.pkg_ver.GetValue())
-            self.pkg.set_property('architecture', self.pkg_arch.GetValue())            
+            self.pkg.set_property('architecture', 
+                        self.pkg_arch.GetItems()[self.pkg_arch.GetSelection()])
+            self.pkg.set_property('short_description', 
+                        self.pkg_short.GetValue())
+            self.pkg.set_property('long_description', self.pkg_long.GetValue())
+            #self.section
+            self.pkg.set_property('installed_size', 
+                        self.installed_size.GetValue())
             
             # Write file
             f = open(os.path.abspath(wpkg.package.INFO_FILENAME), 'w')
@@ -606,24 +613,6 @@ class CreatorApp(wx.App):
         except Exception, e:
             # TODO: Use validators instead of try/except
             wx.MessageBox(e.__str__(), 'Error')
-
-#        try:    self.pkg_name.SetValue(self.pkg.get_property('name'))
-#        except: pass
-
-#        try:    self.pkg_ver.SetValue(self.pkg.get_property('version'))
-#        except: pass
-
-#        try:    self.pkg_arch.Select( \
-#                            archs.index(self.pkg.get_property('architecture')))
-#        except: pass
-
-#        try:    self.pkg_short.SetValue( \
-#                        self.pkg.get_property('short_description'))
-#        except: pass
-
-#        try:    self.pkg_long.SetValue( \
-#                        self.pkg.get_property('long_description'))
-#        except: pass
 
 #        #self.section.SetValue(self.pkg.get_property('section'))
 #        try:    self.installed_size.SetValue( \
