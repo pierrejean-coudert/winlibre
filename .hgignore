@@ -1,0 +1,15 @@
+syntax: glob
+./nbproject
+*DS_Store
+./lib
+./Lib
+./bin
+./Scripts
+./include
+.Python
+*.tmproj
+*.egg-info
+*.pyc
+.*~
+
+syntax: regexp
