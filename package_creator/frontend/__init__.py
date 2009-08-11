@@ -589,21 +589,34 @@ class CreatorApp(wx.App):
         # Load information from info.xml
         ##################
         try:
-            #name, email = self.pkg.get_property('maintainer').split('<')
-            name = self.maintainer.GetValue().strip()
-            email = self.maintainer_email.GetValue().strip()
-            self.pkg.set_property('maintainer', '%s <%s>' % (name, email))
-            
-            self.pkg.set_property('name', self.pkg_name.GetValue())
-            self.pkg.set_property('version', self.pkg_ver.GetValue())
-            self.pkg.set_property('architecture', 
-                        self.pkg_arch.GetItems()[self.pkg_arch.GetSelection()])
-            self.pkg.set_property('short_description', 
-                        self.pkg_short.GetValue())
-            self.pkg.set_property('long_description', self.pkg_long.GetValue())
-            #self.section
-            self.pkg.set_property('installed_size', 
-                        self.installed_size.GetValue())
+            properties = [
+            ('maintainer', '%s <%s>' % (self.maintainer.GetValue(),
+                                    self.maintainer_email.GetValue())),
+            ('name', self.pkg_name.GetValue()),
+            ('version', self.pkg_ver.GetValue()),
+            ('architecture', 
+                        self.pkg_arch.GetItems()[self.pkg_arch.GetSelection()]),
+            ('short_description', self.pkg_short.GetValue()),
+            ('long_description', self.pkg_long.GetValue()),
+            ('installed_size', self.installed_size.GetValue()),
+            ('creator', '%s <%s>' % (self.creator.GetValue(),
+                                     self.creator_email.GetValue())),
+            ('publisher', self.publisher.GetValue()),
+            ('rights_holder', self.rights_holder.GetValue()),
+            ('release_date', self.release_date.GetValue()),
+            ('supported', [self.supported.GetItems()[x] \
+                                    for x in self.supported.GetSelections()]),
+            ('changes', self.changes.GetValue()),
+            ('languages', [self.languages.GetItems()[x] \
+                                    for x in self.languages.GetSelections()]),
+            ('license', self.license.GetItems()[self.license.GetSelection()]),
+            ('homepage', self.homepage.GetValue()),
+            ]
+
+            for property, value in properties:
+                try:    value = value.strip()
+                except: pass
+                self.pkg.set_property(property, value)
             
             # Write file
             f = open(os.path.abspath(wpkg.package.INFO_FILENAME), 'w')
@@ -613,52 +626,6 @@ class CreatorApp(wx.App):
         except Exception, e:
             # TODO: Use validators instead of try/except
             wx.MessageBox(e.__str__(), 'Error')
-
-#        #self.section.SetValue(self.pkg.get_property('section'))
-#        try:    self.installed_size.SetValue( \
-#                        str(self.pkg.get_property('installed_size')))
-#        except: pass
-        
-#        try:    
-#                name, email = self.pkg.get_property('creator').split('<')
-#                self.creator.SetValue(name.strip())
-#                self.creator_email.SetValue(email[:-1].strip())
-#        except: pass
-        
-#        try:    self.publisher.SetValue(self.pkg.get_property('publisher'))
-#        except: pass
-        
-#        try:    self.rights_holder.SetValue( \
-#                        self.pkg.get_property('rights_holder'))
-#        except: pass
-        
-#        try:    self.release_date.SetValue( \
-#                        self.pkg.get_property('release_date'))
-#        except: pass
-        
-#        try:    
-#                for item in self.pkg.get_property('supported'):
-#                    try:    self.supported.Select(supported.index(item))
-#                    except: pass
-#        except: pass
-        
-#        try:    self.changes.SetValue(self.pkg.get_property('changes'))
-#        except: pass
-        
-#        try:    
-#                for item in self.pkg.get_property('languages'):
-#                    try:    self.languages.Select(languages.index(item))
-#                    except: pass
-#        except: pass
-        
-#        try:    
-#                index = licenses.index(self.pkg.get_property('license'))
-#                self.license.Select(index)
-#        except: pass
-        
-#        try:    self.homepage.SetValue(self.pkg.get_property('homepage'))
-#        except: pass
-        
     
     def OnAbout(self, e):
         """ Displays the about window """
