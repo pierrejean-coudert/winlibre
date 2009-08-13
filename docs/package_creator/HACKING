@@ -1,0 +1,32 @@
+Interface widget names:
+
+self.maintainer
+self.maintainer_email
+self.pkg_name
+self.pkg_ver
+self.pkg_arch
+self.pkg_short
+self.pkg_long
+self.creator
+self.creator_email
+self.publisher
+self.rights_holder
+self.installed_size
+self.homepage
+self.release_date
+self.changes
+self.supported
+self.languages
+self.license
+self.section
+
+Strings of the file contents
+self.preinstall
+self.install
+self.postinstall
+self.preremove
+self.remove
+self.postremove
+
+hashes <- Added silently during submit
+urls <- Added silently during submit
