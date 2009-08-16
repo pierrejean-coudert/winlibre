@@ -23,6 +23,11 @@ archs = ['32bit', '64bit', 'Any']
 
 supported = ['7', 'Vista', 'XP', 'NT', 'ME', '2000', '98', '95']
 
+sections = ['admin', 'comm', 'devel', 'doc', 'editors', 'electronics',
+'embedded', 'games', 'graphics', 'hamradio', 'interpreters', 'libs',
+'libdevel', 'mail', 'math', 'misc', 'net', 'oldlibs', 'otherosfs', 'perl',
+'python', 'science', 'shells', 'sound', 'text', 'utils', 'web']
+
 licenses = ['Academic Free License', 
 'Apache License',
 'Artistic License 1.0',
@@ -321,9 +326,13 @@ class CreatorApp(wx.App):
         horiz.Add(self.homepage, 1, wx.CENTER|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
 
+        self.section = wx.ListBox(self.details, size=(75,100),
+                                  choices=sections, style=wx.LB_SINGLE)
         self.changes = wx.TextCtrl(self.details, size=(-1,100),
                                     style=wx.TE_MULTILINE)
         horiz = wx.BoxSizer()
+        horiz.Add(wx.StaticText(self.details, -1, 'Section:'), 0, wx.ALL, 5)
+        horiz.Add(self.section, 0, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         horiz.Add(wx.StaticText(self.details, -1, 'Changes:'), 0, wx.ALL, 5)
         horiz.Add(self.changes, 1, wx.CENTER|wx.EXPAND|wx.ALL, 5)
         sizer2.Add(horiz, 0, wx.EXPAND)
@@ -495,59 +504,40 @@ class CreatorApp(wx.App):
 
         # Load information from info.xml
         ##################
-        try:
-            name, email = self.pkg.get_property('maintainer').split('<')
-            self.maintainer.SetValue(name.strip())
-            self.maintainer_email.SetValue(email[:-1].strip())
-        except: pass
-
-        try:    self.pkg_name.SetValue(self.pkg.get_property('name'))
-        except: pass
-
-        try:    self.pkg_ver.SetValue(self.pkg.get_property('version'))
-        except: pass
+        m_name, m_email = self.pkg.get_property('maintainer').split('<')
+        c_name, c_email = self.pkg.get_property('creator').split('<')
+        vals = [(self.maintainer, m_name.strip()),
+                (self.maintainer_email, m_email[:-1].strip()),
+                (self.pkg_name, self.pkg.get_property('name')),
+                (self.pkg_ver, self.pkg.get_property('version')),
+                (self.pkg_short, self.pkg.get_property('short_description')),
+                (self.pkg_long, self.pkg.get_property('long_description')),
+                (self.installed_size, str(self.pkg.get_property('installed_size'))),
+                (self.creator, c_name.strip()),
+                (self.creator_email, c_email[:-1].strip()),
+                (self.publisher, self.pkg.get_property('publisher')),
+                (self.rights_holder, self.pkg.get_property('rights_holder')),
+                (self.release_date, self.pkg.get_property('release_date')),
+                (self.changes, self.pkg.get_property('changes')),
+                (self.homepage, self.pkg.get_property('homepage'))
+               ]
+        for val in vals:
+            try:
+                val[0].SetValue(val[1])
+            except Exception, e:
+                print e
 
         try:    self.pkg_arch.Select( \
                             archs.index(self.pkg.get_property('architecture')))
         except: pass
-
-        try:    self.pkg_short.SetValue( \
-                        self.pkg.get_property('short_description'))
-        except: pass
-
-        try:    self.pkg_long.SetValue( \
-                        self.pkg.get_property('long_description'))
-        except: pass
-
-        #self.section.SetValue(self.pkg.get_property('section'))
-        try:    self.installed_size.SetValue( \
-                        str(self.pkg.get_property('installed_size')))
-        except: pass
-        
-        try:    
-                name, email = self.pkg.get_property('creator').split('<')
-                self.creator.SetValue(name.strip())
-                self.creator_email.SetValue(email[:-1].strip())
-        except: pass
-        
-        try:    self.publisher.SetValue(self.pkg.get_property('publisher'))
-        except: pass
-        
-        try:    self.rights_holder.SetValue( \
-                        self.pkg.get_property('rights_holder'))
-        except: pass
-        
-        try:    self.release_date.SetValue( \
-                        self.pkg.get_property('release_date'))
-        except: pass
-        
+                
         try:    
                 for item in self.pkg.get_property('supported'):
                     try:    self.supported.Select(supported.index(item))
                     except: pass
         except: pass
         
-        try:    self.changes.SetValue(self.pkg.get_property('changes'))
+        try:    self.section.Select(sections.index(self.pkg.get_property('section')))
         except: pass
         
         try:    
@@ -560,10 +550,7 @@ class CreatorApp(wx.App):
                 index = licenses.index(self.pkg.get_property('license'))
                 self.license.Select(index)
         except: pass
-        
-        try:    self.homepage.SetValue(self.pkg.get_property('homepage'))
-        except: pass
-        
+                
     def EnablePages(self, enable=True):
         """ Enables/Disables pages of the notebook """
         for item in [self.details, self.files, self.scripts, self.submit]:
@@ -606,6 +593,7 @@ class CreatorApp(wx.App):
             ('release_date', self.release_date.GetValue()),
             ('supported', [self.supported.GetItems()[x] \
                                     for x in self.supported.GetSelections()]),
+            ('section', self.section.GetItems()[self.section.GetSelection()]),
             ('changes', self.changes.GetValue()),
             ('languages', [self.languages.GetItems()[x] \
                                     for x in self.languages.GetSelections()]),
