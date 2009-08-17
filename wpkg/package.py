@@ -309,7 +309,10 @@ class Package(Writeable):
         dest_path= dest_path != None and dest_path or os.path.dirname(src_path)
         print 'Extract %s to %s' % (src_path, dest_path)
         zf = zipfile.ZipFile(src_path)
-        files = [info.filename for info in zf.infolist() if info.filename.endswith('.py') or info.filename.endswith('.xml')]
+        #if the binary is embedded in the package,then all files should be extracted
+        #not only *.py and *.xml
+        #files = [info.filename for info in zf.infolist() if info.filename.endswith('.py') or info.filename.endswith('.xml')]
+        files = [info.filename for info in zf.infolist()]
         zf.extractall(dest_path, files)
         return files
     
