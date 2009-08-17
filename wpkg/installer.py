@@ -14,11 +14,10 @@ sys.path.append('..')
 class installer ():
     #Workpath -
     #1) Download using SMART.fetcher
-    #2) call enumerator to check for previous versions.
-    #3) call SMART to resolve/handle dependencies
-    #4) install dependencies
-    #5) call the respective functions handling the .msi or .nsis installs.
-    
+    #2) *SMART handles this* - call enumerator to check for previous versions.
+    #3) *SMART handles this* - call SMART to resolve/handle dependencies
+    #4) *SMART handles this* - install dependencies
+    #5) *WPKG does this* - call the respective functions handling the .msi or .nsis installs.    
     
     def __init__(self,path,package_details):
         self._path = path
@@ -56,7 +55,9 @@ class installer ():
 
 class MSIInstaller(installer):
     def install(self):
+        print 'binary type: MSI'
         install_arg = 'msiexec /i '+self._path+' /quiet'
+        print 'install arg:', install_arg
         if(self.binInstall(install_arg)):
             return 'Installed'
     
@@ -79,7 +80,13 @@ def pkg_name(download_url):
 
 def install(package_type,download_url,package_details):
     #path to the binary
-    bin_path = os.getenv('temp') + '\\' + pkg_name(download_url)
+    #if file://, binary is in datadir/packages
+    if(urlparse.urlsplit(download_url)[0] == 'file'):
+        #how to get datadir without system dependency?
+        bin_path = 'C:\wpc\wpc2\winlibre-google-clean-test\package_manager\datadir\packages' + '\\' + pkg_name(download_url)
+    else:
+        bin_path = os.getenv('temp') + '\\' + pkg_name(download_url)
+   
     #print 'Path : ', bin_path
     
     #MSI package
@@ -104,15 +111,16 @@ def install(package_type,download_url,package_details):
                 installObj.logger(package_details)
                 print '\n***Logged***'
             except:
-                print 'hahaha logger failed'
+                print 'logger failed'
         else:
             print 'Error occoured during install'
             return -1, 'not installed'
         
-    ## add the if entry for nsis package and inno setup package
+    ## add the if entry for inno setup package
     
 
 # pre install - replaced by wpkg.Package.package.install
+'''
 def pre_install(package_name, download_url):
     #pre install - using smart.fetcher module to download package
     print '\n***Downloding WinLibre package...***'
@@ -145,4 +153,4 @@ def pre_install(package_name, download_url):
     print '\n***Now executing install scripts...***'
     f, file_name, desc = imp.find_module('install', [temp_dir])
     install_script = imp.load_module('install', f, file_name, desc)
-    
+'''
