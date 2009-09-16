@@ -3,6 +3,7 @@ from piston.handler import BaseHandler
 from emitters import *
 from django.http import Http404, HttpResponse
 from piston.utils import rc, require_extended, require_mime, Mimer
+from django.db import transaction
 
 import re
 import datetime
@@ -30,7 +31,8 @@ defaultfields =  ('name', 'version', 'architecture',
                   ('replaces', ('name', 'version', ), ),
                   ('pre_depends', ('name', 'version', ), ),
                   ('recommends', ('name', 'version', ), ),
-                  ('conflicts', ('name', 'version', ), )
+                  ('conflicts', ('name', 'version', ), ),
+                  ('urls', ('url', ), ),
                   )
 
 
@@ -167,6 +169,7 @@ class PackageHandler(BaseHandler):
         else:
             #RISE ERROR
             return HttpResponse("There is nothing")
+
 
 class AnonymousPackagesHandler(AnonymousBaseHandler):
     ''' Manages the anonymous petitions to the PackageHandler.

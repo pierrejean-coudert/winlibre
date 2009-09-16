@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ModelForm
 
 class Section(models.Model):
     title = models.CharField(max_length=200)
@@ -18,11 +19,16 @@ class Languages(models.Model):
     def __unicode__(self):
         return self.language
 
+class Urls(models.Model):
+    url = models.CharField(max_length=300)
+    
+    def __unicode__(self):
+        return self.url
+
 class Package(models.Model):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=200)
     architecture = models.CharField(max_length=5)
-    filename = models.CharField(max_length=250)
     installed_size = models.CharField(max_length=20)
     short_description = models.CharField(max_length=500)
     long_description = models.TextField()
@@ -49,7 +55,7 @@ class Package(models.Model):
     section = models.ForeignKey(Section, blank=True)
     supported = models.ManyToManyField(Supported, blank=True) 
     languages = models.ManyToManyField(Languages, blank=True)    
+    urls = models.ManyToManyField(Urls, blank=True)
 
     def __unicode__(self):
         return u"%s %s" % (self.name, self.version)
-
