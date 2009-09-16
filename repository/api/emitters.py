@@ -50,6 +50,8 @@ class WLPXMLEmitter(Emitter):
                             e.append_property(key, element['os_version'])
                         elif 'language' in element.keys():
                             e.append_property(key, element['language'])
+                        elif 'url' in element.keys():
+                            e.append_property(key, element['url'])
                 elif isinstance(value, dict):
                     # Here section property gets its value
                     setattr(e, key, value['title'])
