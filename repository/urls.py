@@ -5,7 +5,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^website/', include('repository.website.urls')),
     (r'^api/', include('repository.api.urls')),
+    (r'^comments/', include('django.contrib.comments.urls')),
+
     # Examples:
     #(r'^repository/', include('repository.foo.urls')),
                       

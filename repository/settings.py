@@ -72,10 +72,12 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'repository.website',
     'repository.winrepo',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.comments',
 )
