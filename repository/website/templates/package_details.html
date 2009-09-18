@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load comments %}
+
+{% block title %}
+{{ package.name }}
+{% endblock %}
+
+{% block content %}
+<h1>Package {{ section }}</h1>
+<p>Name: {{ package.name }}</p>
+<p>Version: {{ package.version }}</p>
+<p>Description: {{ package.description }}</p>
+
+ {% get_comment_count for package as total_comments %}
+<p>Total comments: {{ total_comments }}.</p>
+
+{% get_comment_list for package as comment_list %}
+{% for comment in comment_list %}
+<p> {{ comment }} </p>
+{% endfor %}
+
+{% render_comment_form for package %}
+{% endblock %}

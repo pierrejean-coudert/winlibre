@@ -3,7 +3,9 @@ from django.forms import ModelForm
 
 class Section(models.Model):
     title = models.CharField(max_length=200)
-    
+    def get_absolute_url(self):
+        return "/website/section/%s/" % self.title
+
     def __unicode__(self):
         return self.title
 
@@ -56,6 +58,9 @@ class Package(models.Model):
     supported = models.ManyToManyField(Supported, blank=True) 
     languages = models.ManyToManyField(Languages, blank=True)    
     urls = models.ManyToManyField(Urls, blank=True)
+
+    def get_absolute_url(self):
+        return "/website/package/%s/%s" % (self.name, self.version)
 
     def __unicode__(self):
         return u"%s %s" % (self.name, self.version)
