@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load comments %}
+
+{% block title %}
+{{ newsitem.title }}
+{% endblock %}
+
+
+{% block content %}
+<h1>{{ newsitem.title }}</h1>
+<p>Author: {{ newsitem.author.get_full_name }}</p>
+<p>Date: {{ newsitem.date }}</p><br>
+<p>{{ newsitem.text }}</p>
+
+ {% get_comment_count for newsitem as total_comments %}
+<p>Total comments: {{ total_comments }}.</p>
+
+{% get_comment_list for newsitem as comment_list %}
+{% for comment in comment_list %}
+<p> {{ comment }} </p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+{% render_comment_form for newsitem %}
+{% endif %}
+{% endblock %}

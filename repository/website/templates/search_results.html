@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}
-Packages
+Search
 {% endblock %}
 
 {% block content %}
-<h1>Packages for section {{ section }}</h1>
+<h1>Found packages for search '{{ query_string }}'</h1>
   <ul>
-    {% for package in packages %}
+    {% for package in found_packages %}
     <li><a href="{{ package.get_absolute_url }}">{{ package.name }} - {{ package.version }}</a></li>
     {% endfor %}
   </ul>

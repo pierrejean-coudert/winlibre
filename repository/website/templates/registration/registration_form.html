@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+Registration
+{% endblock %}
+
+{% block content %}
+<h1>Create a new account</h1>
+{% if user.is_authenticated %}
+You are already registered {{ user.get_full_name }}. You should logout before registering a new account. <a href="{%  url django.contrib.auth.views.logout %}">Click here</a> to logout.
+{% else %}
+<form method="post" action="">
+<dl>
+{% for field in form %}
+    <dt>{{ field.label_tag }}</dt>
+    <dd>{{ field }}</dd>
+    {% if field.help_text %}<dd>{{ field.help_text }}</dd>{% endif %}
+    {% if field.errors %}<dd class="myerrors">{{ field.errors }}</dd>{% endif %}
+{% endfor %}
+</dl>
+<input type="submit" />
+</form>
+{% endif %}
+{% endblock %}
