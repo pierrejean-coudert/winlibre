@@ -1,3 +1,11 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+<title>
+{% block title %}Winlibre Package Manager{% endblock %}
+</title>
+<style type="text/css" media="screen">
 body {
 	margin:0px;
 	padding:0px;
@@ -79,3 +87,42 @@ body>#Header {height:14px;}
 	}
 /* Again, "be nice to Opera 5". */
 body>#Menu {width:150px;}
+</style>
+</head>
+<body>
+<div id="Header">
+{% block header %}Winlibre Package Manager{% endblock %}
+</div>
+<div id="Content">
+{% block content %}{% endblock %}
+</div>
+<div id="Menu">
+{% if user.is_authenticated %}
+Welcome {{ user.get_full_name }}. <a href="{%  url django.contrib.auth.views.logout %}">Click here</a> to logout.
+{% else %}
+<form method="post" action="{% url django.contrib.auth.views.login %}">
+<table>
+<tr>
+    <td>{{ loginform.username.label_tag }}</td>
+    <td>{{ loginform.username }}</td>
+</tr>
+<tr>
+    <td>{{ loginform.password.label_tag }}</td>
+    <td>{{ loginform.password }}</td>
+</tr>
+</table>
+
+
+<input type="submit" value="login" />
+<input type="hidden" name="next" value="{{ requesturl }}" />
+</form>
+{% endif %}
+  <ul>
+    <li><a href="/website/">Index (News)</a></li>
+    {% for section in sections %}
+    <li><a href="{{ section.get_absolute_url }}">{{ section.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+</body>
+</html>

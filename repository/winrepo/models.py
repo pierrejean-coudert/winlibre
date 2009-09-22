@@ -1,5 +1,7 @@
 from django.db import models
 from django.forms import ModelForm
+from djangoratings.fields import RatingField
+from django.contrib.auth.models import User
 
 class Section(models.Model):
     title = models.CharField(max_length=200)
@@ -58,9 +60,26 @@ class Package(models.Model):
     supported = models.ManyToManyField(Supported, blank=True) 
     languages = models.ManyToManyField(Languages, blank=True)    
     urls = models.ManyToManyField(Urls, blank=True)
+    rating = RatingField(range=5)
+    user = models.ForeignKey(User)
 
     def get_absolute_url(self):
-        return "/website/package/%s/%s" % (self.name, self.version)
+        return "/website/package/%s/%s/" % (self.name, self.version)
 
     def __unicode__(self):
         return u"%s %s" % (self.name, self.version)
+
+# Site related models
+
+class NewsItem(models.Model):
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    date = models.DateField()
+    author = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return u"%s" % self.title
+
+    def get_absolute_url(self):
+        return "/website/news/%i/" % self.id
+    

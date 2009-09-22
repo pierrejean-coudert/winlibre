@@ -72,6 +72,8 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'registration',
+    'djangoratings',
     'repository.website',
     'repository.winrepo',
     'django.contrib.auth',
@@ -81,3 +83,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.comments',
 )
+
+#Used by registration module to know how many days the activation link for registration is valid
+ACCOUNT_ACTIVATION_DAYS = 10
+
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 22

@@ -9,7 +9,8 @@
 <h1>Package {{ section }}</h1>
 <p>Name: {{ package.name }}</p>
 <p>Version: {{ package.version }}</p>
-<p>Description: {{ package.description }}</p>
+<p>Description: {{ package.short_description }}</p>
+<p>Votes: {{ package.rating.get_percent }} </p><br>
 
  {% get_comment_count for package as total_comments %}
 <p>Total comments: {{ total_comments }}.</p>
@@ -19,5 +20,7 @@
 <p> {{ comment }} </p>
 {% endfor %}
 
+{% if user.is_authenticated %}
 {% render_comment_form for package %}
+{% endif %}
 {% endblock %}
