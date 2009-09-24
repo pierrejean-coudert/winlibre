@@ -5,22 +5,78 @@
 {{ package.name }}
 {% endblock %}
 
+{% block javascripts %}
+     <script type="text/javascript">
+       function disableReqdInputs(){
+         var nameInput = document.getElementById('id_name');
+         if (nameInput){
+           nameInput.value = "{{ user.get_full_name }}";
+           nameInput.readOnly=true;
+         }
+         var emailInput = document.getElementById('id_email');
+         if (emailInput){
+           emailInput.value = "{{ user.email }}";
+           emailInput.readOnly=true;
+         }
+        // var urlInput = document.getElementById('id_url');
+         //if (emailInput){
+         //  urlInput.value = "{{ user.email }}";
+         //  urlInput.readOnly=true;
+         //}
+       }
+
+     </script>
+{% endblock %}
+
 {% block content %}
 <h1>Package {{ section }}</h1>
+<p></p>
 <p>Name: {{ package.name }}</p>
 <p>Version: {{ package.version }}</p>
-<p>Description: {{ package.short_description }}</p>
-<p>Votes: {{ package.rating.get_percent }} </p><br>
-
- {% get_comment_count for package as total_comments %}
+<p>Architecture: {{ package.short_description }}</p>
+<p>Description: {{ package.long_description }}</p>
+<p>Creator: {{ package.short_description }}&lt;{{package.creator_email }}&gt;</p>
+<p>Release date: {{ package.release_date }}</p>
+<p>Changes since last version: {{ package.changes }}</p>
+<p>Homepage: {{ package.homepage }}</p>
+<p>Votes: {{ package.rating.score }} </p>
+{% if already_voted %}
+<p>You already voted for this package.</p>
+{% else %}
+{% if user.is_authenticated %}
+<form name="vote" action="{% url repository.website.views.vote %}" method="POST">
+<input type="hidden" name="package_id" value="{{ package.id }}"  /><br />
+<select name="vote">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+<INPUT type="submit" name="votebut">
+</form>
+{% else %}
+<p>You can't comment or rank unless you register.</p>
+{% endif %}
+{% endif %}
+<p>{% get_comment_count for package as total_comments %}</p>
 <p>Total comments: {{ total_comments }}.</p>
-
+<br />
+<p></p>
 {% get_comment_list for package as comment_list %}
 {% for comment in comment_list %}
 <p> {{ comment }} </p>
 {% endfor %}
-
 {% if user.is_authenticated %}
-{% render_comment_form for package %}
+
+{% get_comment_form for package as form %}
+<form action="{% comment_form_target %}" method="POST">
+    {{ form }}
+    <input type="hidden" name="next" value="{{ path }}" />
+    <p class="submit">
+    <input type="submit" name="submit" class="submit-post" value="Submit">
+    </p>
+</form>
+
 {% endif %}
 {% endblock %}

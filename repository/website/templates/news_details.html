@@ -5,6 +5,28 @@
 {{ newsitem.title }}
 {% endblock %}
 
+{% block javascripts %}
+     <script type="text/javascript">
+       function disableReqdInputs(){
+         var nameInput = document.getElementById('id_name');
+         if (nameInput){
+           nameInput.value = "{{ user.get_full_name }}";
+           nameInput.readOnly=true;
+         }
+         var emailInput = document.getElementById('id_email');
+         if (emailInput){
+           emailInput.value = "{{ user.email }}";
+           emailInput.readOnly=true;
+         }
+        // var urlInput = document.getElementById('id_url');
+         //if (emailInput){
+         //  urlInput.value = "{{ user.email }}";
+         //  urlInput.readOnly=true;
+         //}
+       }
+
+     </script>
+{% endblock %}
 
 {% block content %}
 <h1>{{ newsitem.title }}</h1>
@@ -21,6 +43,13 @@
 {% endfor %}
 
 {% if user.is_authenticated %}
-{% render_comment_form for newsitem %}
+{% get_comment_form for newsitem as form %}
+<form action="{% comment_form_target %}" method="POST">
+    {{ form }}
+    <input type="hidden" name="next" value="{{ path }}" />
+    <p class="submit">
+    <input type="submit" name="submit" class="submit-post" value="Submit">
+    </p>
+</form>
 {% endif %}
 {% endblock %}

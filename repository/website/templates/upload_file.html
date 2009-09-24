@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{
+{% block title %}
+File Upload
+{% endblock %}
+
+
+{% block content %}
+<h1>Upload a file</h1>
+
+<form method="POST" action="{% url repository.website.views.upload_file %}" enctype="multipart/form-data" >
+    {{ form }}
+<INPUT type="submit" name="send_file">
+</form>
+{% endblock %}

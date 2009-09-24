@@ -83,3 +83,19 @@ class NewsItem(models.Model):
     def get_absolute_url(self):
         return "/website/news/%i/" % self.id
     
+class UploadedFiles(models.Model):
+    package = models.ForeignKey(Package)
+    owner = models.ForeignKey(User)
+    url = models.CharField(max_length=300)
+
+    class Meta:
+        unique_together = ("package", "owner")
+
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    developer = models.BooleanField()
+    projects = models.CharField(max_length=300)
+
+    def get_absolute_url(self):
+        return ('profiles_profile_detail', (), { 'username': self.user.username })
+    get_absolute_url = models.permalink(get_absolute_url)

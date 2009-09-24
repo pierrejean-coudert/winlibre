@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+Uploaded files
+{% endblock %}
+
+{% block content %}
+<h1>Files uploaded by {{ user.username }}</h1>
+  <ul>
+    {% for file in uploaded_files %}
+    <li>{{ file.package.name }} - {{ file.package.version }} - {{ file.url }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
