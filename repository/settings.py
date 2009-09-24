@@ -35,12 +35,12 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '/home/acadavid/development/winlibre/repository/files'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = 'http://localhost:8000/files/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -72,6 +72,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'profiles',
     'registration',
     'djangoratings',
     'repository.website',
@@ -87,5 +88,22 @@ INSTALLED_APPS = (
 #Used by registration module to know how many days the activation link for registration is valid
 ACCOUNT_ACTIVATION_DAYS = 10
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 22
+EMAIL_HOST = 'smtp.webfaction.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'acadavid'
+EMAIL_HOST_PASSWORD = 'alejito123'
+DEFAULT_FROM_EMAIL = "acadavid@mail.webfaction.com"
+SERVER_EMAIL = "acadavid@mail.webfaction.com"
+
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+AUTH_PROFILE_MODULE = 'winrepo.userprofile'
+
+TEMPLATE_CONTEXT_PROCESSORS = ("django.core.context_processors.auth",
+"django.core.context_processors.debug",
+"django.core.context_processors.i18n",
+"django.core.context_processors.media",
+"website.views.getsections")
+
+ 

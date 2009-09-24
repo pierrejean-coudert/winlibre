@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit profile
+{% endblock %}
+
+{% block content %}
+<h1>Create profile </h1>
+{% if user.is_authenticated %}
+<form name="editprofile" action="{% url profiles_create_profile %}" method="POST">
+{{ form }}
+<input type="submit" name="submite-profile">
+</form>
+{% endif %}
+</div>
+{% endblock %}

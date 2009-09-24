@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}
+Profile details
+{% endblock %}
+
+{% block content %}
+<h1>Profiles details for {{ user.username }} </h1>
+{% if user.is_authenticated %}
+Full name: {{ profile.user.get_full_name }} <br>
+Developer: {{ profile.developer }} <br>
+Projects: {{ profile.projects }} <br>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,1 +1,1 @@
-Your activation key is{{ site }}/accounts/activate/{{ activation_key }}/
+Your activation key is {{ site }}accounts/activate/{{ activation_key }}/
