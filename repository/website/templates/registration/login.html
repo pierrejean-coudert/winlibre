@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<h1>Login</h1>
+{% if user.is_authenticated %}
+You have logged in as {{ user.username }}.
+{% else %}
+There were errors in your log in process. Please try again.
+{% endif %}
+{% endblock %}

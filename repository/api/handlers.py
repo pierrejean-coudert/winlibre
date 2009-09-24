@@ -89,7 +89,7 @@ class PackageHandler(BaseHandler):
                           'publisher', 'rights_holder', 'filename',
                           'release_date', 'changes',
                           'size', 'license', 'sha256',
-                          'homepage',  'languages', 'supported', 'section',
+                          'homepage',  'section', 'languages', 'supported',
                           'replaces', 'pre_depends', 'depends',
                           'provides', 'recommends', 'suggests']
 
@@ -104,18 +104,15 @@ class PackageHandler(BaseHandler):
             for prop in propertieslist:
                 if prop == 'section':
                     try:
-                        sectionexist = sectionbase.get(title=pkg.get_property(prop))
+                        sectionexist = sectionbase.get_or_create(title=pkg.get_property(prop))
                     except:
-                        sectionexist = None
-                        packagemodel.delete()
-                        return HttpResponse("Section doesnt exist "+pkg.get_property(prop))
-                        #RISE ERROR
+                        return HttpResponse("Section couldn't be created")
                     if sectionexist:
                         # Here there is a nasty solution. Section is the last added element
                         # and the package should be saved before adding it to the set.
                         # Pending for a better solution.
+                        packagemodel.section.add(sectionexist)
                         packagemodel.save()
-                        sectionexist.package_set.add(packagemodel)
                 elif prop == 'maintainer' or prop == 'creator'or prop == 'publisher' or prop == 'rights_holder':
                     # Here we split name and email.
                     rex = re.compile('(?P<name>[^"]*) "(?P<email>[^"]*)')
@@ -124,7 +121,6 @@ class PackageHandler(BaseHandler):
                         setattr(packagemodel, prop+"_email", exrex.group('email'))
                         setattr(packagemodel, prop, exrex.group('name'))
                     else:
-                        packagemodel.delete()
                         return HttpResponse("Invalid name and email format in: "+prop)
                 elif prop == 'release_date':
                     ds = pkg.get_property(prop).split('/')
@@ -133,9 +129,8 @@ class PackageHandler(BaseHandler):
                 elif prop == 'languages':
                     for language in pkg.get_property(prop):
                         try:
-                            languageexist = languagesbase.get(language=language)
+                            languageexist = languagesbase.get_or_create(language=language)
                         except:
-                            packagemodel.delete()
                             return HttpResponse("Language doesn't exist")
                         packagemodel.save()
                         packagemodel.languages.add(languageexist)
@@ -144,8 +139,7 @@ class PackageHandler(BaseHandler):
                         try:
                             supportedexist = supportedbase.get(os_version=supported)
                         except:
-                            packagemodel.delete()
-                            return HttpResponse("Windows version doesn't exist:"+supported)
+                            return HttpResponse("Problems with supported OS.")
                         packagemodel.save()
                         packagemodel.supported.add(supportedexist)
                 elif  prop == 'replaces' or prop == 'pre_depends' or prop == 'depends' or prop == 'provides' or prop == 'recommends' or prop == 'suggests':
@@ -156,7 +150,6 @@ class PackageHandler(BaseHandler):
                             try:
                                 packageexist = base.get(name=exrex.group('name'), version=exrex.group('version'))
                             except:
-                                packagemodel.delete()
                                 return HttpResponse("Package not found: "+exrex.group('name')+" in "+prop)
                         else:
                             break

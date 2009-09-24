@@ -38,6 +38,9 @@
 <p>Creator: {{ package.short_description }}&lt;{{package.creator_email }}&gt;</p>
 <p>Release date: {{ package.release_date }}</p>
 <p>Changes since last version: {{ package.changes }}</p>
+{% for dp in package.depends.all %}
+<p>Depends on: <a href ="{{ dp.get_absolute_url }}">{{ dp.name }} - {{ dp.version }}</a></p>
+{% endfor %}
 <p>Homepage: {{ package.homepage }}</p>
 <p>Votes: {{ package.rating.score }} </p>
 {% if already_voted %}
